@@ -1,8 +1,25 @@
 
 ### the experimental data points
-points=matrix(c(2,3,5,4,9,6,4,7,8,1,7,2,10,12,13,6),byrow=T,ncol=2)
+points=matrix(c(2,3,5,4,9,6,4,7,8,1,7,2,4,4),byrow=T,ncol=2)
 
+points=matrix(c(1,0.5,
+                2,6,
+                3,4,
+                4,5,
+                5,1,
+                6,4.5,
+                6.5,2),byrow=T,ncol=2)
 ### construct kd-tree
+rownames(points)=c("1F","2G","3A","4C","5B","6E","7D")
+# F 1,0.5
+# G 2,6
+# A 3,4
+# C 4,5
+# B 5,1
+# E 6,4.5
+# D 6.5,2
+# S 5.6,3.5
+
 
 ### construct kd-tree
 ### split--split dimension; rows -- rows used in kd-tree Res -- for the recursive design
@@ -67,19 +84,15 @@ is.leaf<-function(num_point,leaves)
   return(is.element(num_point,leaves))
 }
 
-search.leaf.main<-function(points,KdTree,point)
+search.leaf.main<-function(points,kd_tree,point)
 {
-  spl_ord=KdTree$Spl_ord
-  kd_tree=KdTree$Kd_tree
-  
-  point=point[spl_ord]
-  points=points[,spl_ord]
   leaves=setdiff(c(kd_tree[,2],kd_tree[,3]),c(kd_tree[,1],0))
   
   leaf = search.leaf.sub(1,kd_tree,point,points,kd_line=kd_tree[nrow(kd_tree),],leaves)
   return(leaf)
 }
 
+leaf=search.leaf.main(points,kd_tree[[2]],point)
 
 search.leaf.sub<-function(ord,kd_tree,point,points,kd_line,leaves)
 {
@@ -125,8 +138,6 @@ is.root<-function(father,kd_tree)
 
 kd.traceback.main<-function(points,leaf,point,kd_tree)
 {
-  
-  
   min_dist=Euler.dist(leaf,point)
   min_point=leaf
   first_ord=(nrow(kd_tree)-1)%%ncol(points)
@@ -160,13 +171,21 @@ kd.traceback.sub<-function(leaf,point,points,ord,min_dist,min_point,kd_tree)
     cat("son_dist:",son_dist,"\n")
     
     son_line=which(kd_tree[,1]==son)
-    son_leaf=search.leaf.main(points,KdTree=kd_tree[1:son_line,],point)
-    cat("son_leaf:",son_leaf,"\n")
-    
-    son_res=kd.traceback.main(points,leaf=son_leaf,point,kd_tree=kd_tree[1:son_line,])
-    min_point=son_res$Min_point
-    min_dist=son_res$Min_dist
-    
+    if (length(son_line)!=0)
+    {
+      show("yes")
+      son_leaf=search.leaf.main(points,kd_tree[1:son_line,],point)
+      cat("son_leaf:",son_leaf,"\n")
+      
+      son_res=kd.traceback.main(points,leaf=son_leaf,point,kd_tree=kd_tree[1:son_line,])
+      son=son_res$Min_point
+      son_dist=son_res$Min_dist
+    }
+    if (son_dist<min_dist)
+    {
+      min_point=son
+      min_dist=son_dist
+    }
   }
   cat("min_point:",min_point,"\n")
   cat("min_dist:",min_dist,"\n")
@@ -189,7 +208,7 @@ main.search<-function(points,kd_tree,point)
   spl_ord=kd_tree[[1]]
   points=points[,spl_ord]
   point=point[spl_ord]
-  leaf=search.leaf.main(points,KdTree=kd_tree,point)
+  leaf=search.leaf.main(points,kd_tree[[2]],point)
   cat("leaf:",leaf,"\n")
   
   res=kd.traceback.main(points,leaf,point,kd_tree=kd_tree[[2]])
@@ -198,7 +217,7 @@ main.search<-function(points,kd_tree,point)
 
 
 kd_tree=kd.tree.main(points)
-res=main.search(points,kd_tree,point=c(3,4.5))
+res=main.search(points,kd_tree,point=c(5.6,3.5))
 kd_res=res[[2]]
 leaf=res[[1]]
 

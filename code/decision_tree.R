@@ -32,8 +32,6 @@ info.gain<-function(cate,cond)
 
 decision.tree<-function(data,y,rows,vars,eps,fit,route)
 {
-#  dd=data[rows,cols]
-#  yy=y[rows]
   t_y=table(y)
   if (length(t_y)==1)
   {
@@ -47,15 +45,14 @@ decision.tree<-function(data,y,rows,vars,eps,fit,route)
     return(res)
   })
   max_i=which.max(info_gain)
+  
   if (info_gain[max_i]<=eps)
   {
     fit[rows]=as.numeric(names(t_y)[which.max(t_y)])
     res=list(Vars=list(fit[rows[1]]),Fit=fit)
     return(res)
   }
-#  cols=setdiff(cols,max_i)
-#  eval(parse(text=paste("vars",route,"=list(colnames(data)[max_i])",sep="")))
-
+  
   ind=split(1:nrow(data),factor(data[,max_i]))
   for (i in 1:length(ind))
   {
@@ -65,13 +62,84 @@ decision.tree<-function(data,y,rows,vars,eps,fit,route)
     eval(parse(text=paste("vars",rou,"=res$Vars",sep="")))  
     fit=res$Fit
   }
-#  eval(parse(text=paste("names(vars)","=c('split_var',names(ind))",sep="")))
   res=list(Vars=vars,Fit=fit)
   return(res)
 }
 
 res=decision.tree(data=loan[,-1],y=loan$y,rows=1:nrow(loan),vars=list(),
                   eps=0,fit=rep(0,nrow(loan)),route="")
+
+#### for pruning a decision tree
+
+
+Loss<-function(vec,N_leaf,alpha)
+{
+  loss=entropy(vec)+alpha*N_leaf
+  return(loss)
+}
+
+pruning<-function(father_loss,sons_loss,point,y,rows,fit)
+{
+  if (father_loss-sum(sons_loss)>0)
+  {
+    attr(point,"loss")=sum(sons_loss)
+    return(list(Point=point,Fit=fit))
+  }
+  else
+  {
+    res=table(y[rows])
+    attr(res,"loss")=father_loss
+    max_ind=which.max(res)
+    fit[rows]=rep(as.numeric(names(res)[max_ind]),length(rows))
+    return(list(Point=res,Fit=fit))
+  }
+}
+
+pruning.tree<-function(point,data,y,rows,fit,alpha)
+{
+  is_leaf=!sapply(point,is.list)
+  spl_var=gsub("_[0-9]+","",names(point))[1]
+  father_loss=Loss(y[rows],1,alpha)
+  spl_groups=split(rows,factor(data[rows,spl_var]))
+  if (all(is_leaf))
+  {
+    sons_loss=sapply(spl_groups,function(x)
+      {return(Loss(y[x],N_leaf=1,alpha))})    
+    res=pruning(father_loss,sons_loss,point,y,rows,fit)
+    return(res)
+  }
+  sons_loss=NULL
+  for (i in 1:length(is_leaf))
+  {
+    if (is_leaf[i])
+    {
+      tmp=Loss(y[spl_groups[[i]]],N_leaf=1,alpha)
+      sons_loss=c(sons_loss,tmp)
+    }
+    else
+    {
+      tmp=pruning.tree(point[[i]],data,y,spl_groups[[i]],fit,alpha)
+      point[[i]]=tmp$Point
+      sons_loss=c(sons_loss,attr(point[[i]],"loss"))
+      fit=tmp$Fit
+    }
+  }
+  res=pruning(father_loss,sons_loss,point,y,rows,fit)
+  return(res)
+}
+
+res=decision.tree(data=loan[,-1],y=loan$y,rows=1:nrow(loan),vars=list(),
+                  eps=0,fit=rep(0,nrow(loan)),route="")
+
+res_pru=pruning.tree(point=res$Vars,data=loan[,-1],y=loan$y,rows=1:nrow(loan),fit=res$Fit,alpha=1)
+
+
+
+
+
+
+
+
 
 
 
