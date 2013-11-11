@@ -30,6 +30,12 @@ info.gain<-function(cate,cond)
   return(res)
 }
 
+info.gain.ratio<-function(cate,cond)
+{
+  res=(entropy(cate)-entropy.cond(cate,cond))/entropy(cate)
+  return(res)
+}
+
 decision.tree<-function(data,y,rows,vars,eps,fit,route)
 {
   t_y=table(y)
@@ -40,8 +46,8 @@ decision.tree<-function(data,y,rows,vars,eps,fit,route)
     return(res)
   }
   info_gain=apply(data,2,function(x)
-    {
-    res=info.gain(y,x)
+ {
+    res=info.gain.ratio(y,x)  ###info.gain.ratio used
     return(res)
   })
   max_i=which.max(info_gain)
@@ -60,8 +66,13 @@ decision.tree<-function(data,y,rows,vars,eps,fit,route)
     res=decision.tree(data[ind[[i]],-max_i],y[ind[[i]]],rows=rows[ind[[i]]],vars,eps,fit,rou="")
     
     eval(parse(text=paste("vars",rou,"=res$Vars",sep="")))  
+    
     fit=res$Fit
   }
+  eval(parse(text=paste("attr(vars,'Info_gain_",gsub("_[0-9]+","",rou[1]),"')=",info_gain[max_i],sep="")))
+  rows_ind=lapply(ind,function(x) return(rows[x]))
+  eval(parse(text="attr(vars,'spl_groups')=rows_ind"))
+  
   res=list(Vars=vars,Fit=fit)
   return(res)
 }
@@ -70,7 +81,6 @@ res=decision.tree(data=loan[,-1],y=loan$y,rows=1:nrow(loan),vars=list(),
                   eps=0,fit=rep(0,nrow(loan)),route="")
 
 #### for pruning a decision tree
-
 
 Loss<-function(vec,N_leaf,alpha)
 {
@@ -134,10 +144,16 @@ res=decision.tree(data=loan[,-1],y=loan$y,rows=1:nrow(loan),vars=list(),
 res_pru=pruning.tree(point=res$Vars,data=loan[,-1],y=loan$y,rows=1:nrow(loan),fit=res$Fit,alpha=1)
 
 
+#### CART
 
+y=c(4.5,4.75,4.91,5.34,5.8,7.05,7.9,8.23,8.7,9)
+x=1:10   ### x must be sorted here
+z=sapply(1:(length(x)-1),function(i) 
+  {sum((y[1:i]-mean(y[1:i]))^2,(y[(i+1):length(x)]-mean(y[(i+1):length(x)]))^2)})
+x[1:9][which.min(z)]
 
-
-
+mean(y[1:5])
+mean(y[6:10])
 
 
 

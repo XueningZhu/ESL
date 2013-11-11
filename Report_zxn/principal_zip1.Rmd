@@ -1,0 +1,188 @@
+Principal Component Analysis ,Exploratory Factor Analysis and Multidimensinal scaling with zip data
+--------------------------------------------------------------------
+We report the results in this article to conduct Principal Component Analysis and Factor Analysis with the zip dataset. The main parts are as following:
+
+1.  Data description and missing values imputation
+2.  Principal component analysis
+3.  Factor analysis
+4.  Multidimensional scaling
+
+### Data Description
+First, we convert the data format to rda in R with the package 'sas7bdat' and save it as 'zip1.rda' in the working path.
+Then we can see the details of the description of the data set.
+
+
+```{r table, results='asis'}
+setwd("F:/商业数据挖掘_光华/homework/2")
+
+#library(sas7bdat)
+############ read data files
+#zip1=read.sas7bdat("zipdemo1.sas7bdat")
+#save(zip1,file="zip1.rda")
+library(xtable)
+##### load the data files
+load("zip1.rda")
+print(xtable(head(summary(zip1)[,1:5])), type='html') 
+sum(!complete.cases(zip1))
+```
+
+Some NAs are included in some variables. So we simply conduct the multiple imputation with the 'mi' package in R. Since the it takes a long time to do such process, we just save the imputated dataset before. Here we also deplay the codes.
+```{r}
+##### conduct the multiple imputation
+#require(mi)
+#zip1_com = mi(zip1[,-1])
+#comp_zip1 = mi.data.frame(zip1_com,m=1) 
+#zip1_comp = cbind(zip1[,1],comp_zip1)
+#save(zip1_comp,file="zip1_comp.rda")
+load("zip1_comp.rda")
+summary(zip1_comp)
+```
+
+### Principal Component Analysis
+We conduct the principal component analysis using the function princomp. The correlation matrix is used for the estimation.
+
+```{r}
+#### Principal Component Analysis
+dd=zip1_comp[,-1]
+zip_prin=princomp(dd,cor=T,scores=T)
+```
+
+Then we draw the scree plot to select the appropriate component number. There's a turning point at Comp.5 in the picture, so we simply choose 5 as the component number, which explains
+74.98 percent of the variance.
+
+```{r}
+screeplot(zip_prin,type="lines")
+```
+
+we summary the results for details of the components. Besides, if we follow the Kaiser Principle, we'd better to choose 6 as the component number, which explains 78.35 percent variance.
+
+```{r}
+summary(zip_prin)
+```
+
+In addition, we look into the loading matrix to achieve more information.
+
+The first component is about the population age distribution against the wealth indicators. 
+
+The second mainly describes the races distribution and wealth ratings against some other indicators like ages and NCDB. 
+
+The third contains the comparison about the races structure and wealth indexes, ages, salary structures etc. 
+
+Other components can also be analyzed in this way. 
+
+To summary, the variables can be clustered into aspects about wealth, salary structures, social positions, human races structures, age structures etc.
+
+```{r}
+loadings(zip_prin)
+```
+
+### Factor Analysis
+We conduct the Factor Analysis with the MLE method. To avoid the scaling problem, we center and scale the variables with zero mean and 1 sd.
+
+Besides, we use the varimax principle to conduct the rotation.
+```{r}
+#### Factor Analysis
+dd_std=scale(dd)
+zip_fac=factanal(dd_std,factor=10,rotation="varimax",n.obs=nrow(dd),control=list(trace=T))
+zip_fac
+```
+
+#### Several ways to decide Number of Factors
+We use the principle that every factor's variance's ratio should be larger than 1/p. Since the variance of the X (all variance) is p (32), we just need to guarantee that the factor's variance is larger than 1.
+
+```{r}
+flag=1; i=15
+while(flag==1)
+{
+  zip_fac=factanal(dd_std,factor=i,rotation="varimax",n.obs=nrow(dd))
+  fac_var=apply(zip_fac$loadings,2,function(x) return(sum(x^2)))
+  cat("nFactor:",i,"\n","Factor variance:",fac_var,"\n","\n")
+  if (all(fac_var>=1))
+    flag=0
+  i=i-1
+}
+```
+
+Here 8 is the number of the factors that subject to the constraint.
+
+Besides that, we can also use the eigenvalues to decide the number. According to the principal component analysis before, we can choose 6 as our number of factors, which accounts for 78.34 percent of the sum of eigenvalues. We can also make other choices due to the demanded cumulative proportion in the summary(zip_prin) before.
+
+The parallel analysis is also a way to decide the number of factors, which is developed by Raiche, Riopel, and Blais. We the R package 'nFactors' fot the analysis.
+
+```{r warning=FALSE,message=FALSE}
+# Determine Number of Factors to Extract
+library(nFactors)
+ev <- eigen(cor(dd_std)) # get eigenvalues
+ap <- parallel(subject=nrow(dd_std),var=ncol(dd_std),
+               rep=100,cent=.05)
+nS <- nScree(x=ev$values, aparallel=ap$eigen$qevpea)
+plotnScree(nS)
+```
+
+The result gives 6 as the best number.
+
+There are other methods provided in this package for the number decision process.
+```{r}
+nBartlett(x=ev$values, N= nrow(dd_std), alpha=0.05, details=TRUE)
+nBentler(x=ev$values, N= nrow(dd_std), alpha=0.05, details=TRUE)
+nCng(x=ev$values,  model="factors", details=TRUE)
+```
+
+#### Factor Explainations
+We choose 6 as the factor numbers. 
+
+We then use the varimax and promax rotation method to achieve the loading matrix.
+
+```{r}
+#### Factor Analysis
+dd_std=scale(dd)
+zip_fac=factanal(dd_std,factor=6,rotation="varimax",n.obs=nrow(dd))
+loadings(zip_fac)
+zip_fac=factanal(dd_std,factor=6,rotation="promax",n.obs=nrow(dd))
+loadings(zip_fac)
+```
+
+From the loading matrix we can see the promax rotation are closely related to the varimax rotation in the top3 factors. We now look into more details of the loading matrix of the promax rotation.
+
+The first factor has a high loading value at WEALTHRT, DMAWLTHT, INCMINDX and CEMI, they are mainly about the income index. And it has relative negative loading on PRCBLCK, PRCNCD1 and PRCRENT compared to the first aspect, which are mainly  related to the human races percent.
+
+The second factor are mostly the PRCNCD3, PRCNCD10 aginst PRCNCD1 and PRCOWNO. They are mainly the descriptions of the %NCDB HH.
+
+The third has a high loading on PRC500K, PRC200K, PRC100K and OOMEDHVL. They are mainly about the OOH Value.
+
+The fourth factor has the highest loading on PRC65P, HHMEDAGE, PRC55P and a relative negative value on PRC3544, PRC4554. They are mostly descriptions of the age structure.
+
+The fifth factor is highest loaded on PRCUN18, PRCTHRE and PRCHHFM. They have a closed relationship with the %HH value.
+
+#### Multidimensional Scaling
+
+We use the package MASS to do the multidimensional scaling with data zip2. For details, we use 1-correlation as the distance measure.
+
+```{r warning=FALSE,message=F, fig.width=13, fig.height=7}
+library("MASS")
+library(ggplot2)
+load("zip2.rda")
+dist=1-cor(zip2[,-1])
+
+zip2_mds = isoMDS(dist)
+x = zip2_mds$points[,1]
+y = zip2_mds$points[,2]
+g=ggplot(data.frame(x,y),aes(x,y,label = colnames(zip2)[-1]))
+g+geom_point(shape=16,size=3,colour='red')+
+  geom_text(hjust=-0.1,vjust=0.5,alpha=0.5,angle=7)
+```
+
+From the figure, we can see some features are clustered with each other.
+
+The CEMI, PRC25BA, OOHVI, PRCOOHV, ISPSA, WEALTHRT, DMAWLTHT, MEDSCHYR are very closed to each other. That means the wealth ,the education level and the social position are high correlated.
+
+The PRC65P, HHMEDAGE, PRC55P are very closed. They are all descriptions of ages. We may infer that the householder's median age are upon 55.
+
+The PRC200K, PRC100K, OOHVI are very closed to each other. 
+
+There isn't a significant clustering sign of other features.
+
+
+
+
+

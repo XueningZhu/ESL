@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=9" >
+
+<title>Shopping数据关联规则挖掘</title>
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 14px;
+   margin: 8px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 { 
+   font-size:2.2em; 
+}
+
+h2 { 
+   font-size:1.8em; 
+}
+
+h3 { 
+   font-size:1.4em; 
+}
+
+h4 { 
+   font-size:1.0em; 
+}
+
+h5 { 
+   font-size:0.9em; 
+}
+
+h6 { 
+   font-size:0.8em; 
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre {	
+   margin-top: 0;
+   max-width: 95%;
+   border: 1px solid #ccc;
+   white-space: pre-wrap;
+}
+
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code.r, code.cpp {
+   background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * { 
+      background: transparent !important; 
+      color: black !important; 
+      filter:none !important; 
+      -ms-filter: none !important; 
+   }
+
+   body { 
+      font-size:14pt; 
+      max-width:100%; 
+   }
+       
+   a, a:visited { 
+      text-decoration: underline; 
+   }
+
+   hr { 
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote { 
+      padding-right: 1em; 
+      page-break-inside: avoid; 
+   }
+
+   tr, img { 
+      page-break-inside: avoid; 
+   }
+
+   img { 
+      max-width: 100% !important; 
+   }
+
+   @page :left { 
+      margin: 15mm 20mm 15mm 10mm; 
+   }
+     
+   @page :right { 
+      margin: 15mm 10mm 15mm 20mm; 
+   }
+
+   p, h2, h3 { 
+      orphans: 3; widows: 3; 
+   }
+
+   h2, h3 { 
+      page-break-after: avoid; 
+   }
+}
+
+</style>
+
+<!-- Styles for R syntax highlighter -->
+<style type="text/css">
+   pre .operator,
+   pre .paren {
+     color: rgb(104, 118, 135)
+   }
+
+   pre .literal {
+     color: rgb(88, 72, 246)
+   }
+
+   pre .number {
+     color: rgb(0, 0, 205);
+   }
+
+   pre .comment {
+     color: rgb(76, 136, 107);
+   }
+
+   pre .keyword {
+     color: rgb(0, 0, 255);
+   }
+
+   pre .identifier {
+     color: rgb(0, 0, 0);
+   }
+
+   pre .string {
+     color: rgb(3, 106, 7);
+   }
+</style>
+
+<!-- R syntax highlighter -->
+<script type="text/javascript">
+var hljs=new function(){function m(p){return p.replace(/&/gm,"&amp;").replace(/</gm,"&lt;")}function f(r,q,p){return RegExp(q,"m"+(r.cI?"i":"")+(p?"g":""))}function b(r){for(var p=0;p<r.childNodes.length;p++){var q=r.childNodes[p];if(q.nodeName=="CODE"){return q}if(!(q.nodeType==3&&q.nodeValue.match(/\s+/))){break}}}function h(t,s){var p="";for(var r=0;r<t.childNodes.length;r++){if(t.childNodes[r].nodeType==3){var q=t.childNodes[r].nodeValue;if(s){q=q.replace(/\n/g,"")}p+=q}else{if(t.childNodes[r].nodeName=="BR"){p+="\n"}else{p+=h(t.childNodes[r])}}}if(/MSIE [678]/.test(navigator.userAgent)){p=p.replace(/\r/g,"\n")}return p}function a(s){var r=s.className.split(/\s+/);r=r.concat(s.parentNode.className.split(/\s+/));for(var q=0;q<r.length;q++){var p=r[q].replace(/^language-/,"");if(e[p]){return p}}}function c(q){var p=[];(function(s,t){for(var r=0;r<s.childNodes.length;r++){if(s.childNodes[r].nodeType==3){t+=s.childNodes[r].nodeValue.length}else{if(s.childNodes[r].nodeName=="BR"){t+=1}else{if(s.childNodes[r].nodeType==1){p.push({event:"start",offset:t,node:s.childNodes[r]});t=arguments.callee(s.childNodes[r],t);p.push({event:"stop",offset:t,node:s.childNodes[r]})}}}}return t})(q,0);return p}function k(y,w,x){var q=0;var z="";var s=[];function u(){if(y.length&&w.length){if(y[0].offset!=w[0].offset){return(y[0].offset<w[0].offset)?y:w}else{return w[0].event=="start"?y:w}}else{return y.length?y:w}}function t(D){var A="<"+D.nodeName.toLowerCase();for(var B=0;B<D.attributes.length;B++){var C=D.attributes[B];A+=" "+C.nodeName.toLowerCase();if(C.value!==undefined&&C.value!==false&&C.value!==null){A+='="'+m(C.value)+'"'}}return A+">"}while(y.length||w.length){var v=u().splice(0,1)[0];z+=m(x.substr(q,v.offset-q));q=v.offset;if(v.event=="start"){z+=t(v.node);s.push(v.node)}else{if(v.event=="stop"){var p,r=s.length;do{r--;p=s[r];z+=("</"+p.nodeName.toLowerCase()+">")}while(p!=v.node);s.splice(r,1);while(r<s.length){z+=t(s[r]);r++}}}}return z+m(x.substr(q))}function j(){function q(x,y,v){if(x.compiled){return}var u;var s=[];if(x.k){x.lR=f(y,x.l||hljs.IR,true);for(var w in x.k){if(!x.k.hasOwnProperty(w)){continue}if(x.k[w] instanceof Object){u=x.k[w]}else{u=x.k;w="keyword"}for(var r in u){if(!u.hasOwnProperty(r)){continue}x.k[r]=[w,u[r]];s.push(r)}}}if(!v){if(x.bWK){x.b="\\b("+s.join("|")+")\\s"}x.bR=f(y,x.b?x.b:"\\B|\\b");if(!x.e&&!x.eW){x.e="\\B|\\b"}if(x.e){x.eR=f(y,x.e)}}if(x.i){x.iR=f(y,x.i)}if(x.r===undefined){x.r=1}if(!x.c){x.c=[]}x.compiled=true;for(var t=0;t<x.c.length;t++){if(x.c[t]=="self"){x.c[t]=x}q(x.c[t],y,false)}if(x.starts){q(x.starts,y,false)}}for(var p in e){if(!e.hasOwnProperty(p)){continue}q(e[p].dM,e[p],true)}}function d(B,C){if(!j.called){j();j.called=true}function q(r,M){for(var L=0;L<M.c.length;L++){if((M.c[L].bR.exec(r)||[null])[0]==r){return M.c[L]}}}function v(L,r){if(D[L].e&&D[L].eR.test(r)){return 1}if(D[L].eW){var M=v(L-1,r);return M?M+1:0}return 0}function w(r,L){return L.i&&L.iR.test(r)}function K(N,O){var M=[];for(var L=0;L<N.c.length;L++){M.push(N.c[L].b)}var r=D.length-1;do{if(D[r].e){M.push(D[r].e)}r--}while(D[r+1].eW);if(N.i){M.push(N.i)}return f(O,M.join("|"),true)}function p(M,L){var N=D[D.length-1];if(!N.t){N.t=K(N,E)}N.t.lastIndex=L;var r=N.t.exec(M);return r?[M.substr(L,r.index-L),r[0],false]:[M.substr(L),"",true]}function z(N,r){var L=E.cI?r[0].toLowerCase():r[0];var M=N.k[L];if(M&&M instanceof Array){return M}return false}function F(L,P){L=m(L);if(!P.k){return L}var r="";var O=0;P.lR.lastIndex=0;var M=P.lR.exec(L);while(M){r+=L.substr(O,M.index-O);var N=z(P,M);if(N){x+=N[1];r+='<span class="'+N[0]+'">'+M[0]+"</span>"}else{r+=M[0]}O=P.lR.lastIndex;M=P.lR.exec(L)}return r+L.substr(O,L.length-O)}function J(L,M){if(M.sL&&e[M.sL]){var r=d(M.sL,L);x+=r.keyword_count;return r.value}else{return F(L,M)}}function I(M,r){var L=M.cN?'<span class="'+M.cN+'">':"";if(M.rB){y+=L;M.buffer=""}else{if(M.eB){y+=m(r)+L;M.buffer=""}else{y+=L;M.buffer=r}}D.push(M);A+=M.r}function G(N,M,Q){var R=D[D.length-1];if(Q){y+=J(R.buffer+N,R);return false}var P=q(M,R);if(P){y+=J(R.buffer+N,R);I(P,M);return P.rB}var L=v(D.length-1,M);if(L){var O=R.cN?"</span>":"";if(R.rE){y+=J(R.buffer+N,R)+O}else{if(R.eE){y+=J(R.buffer+N,R)+O+m(M)}else{y+=J(R.buffer+N+M,R)+O}}while(L>1){O=D[D.length-2].cN?"</span>":"";y+=O;L--;D.length--}var r=D[D.length-1];D.length--;D[D.length-1].buffer="";if(r.starts){I(r.starts,"")}return R.rE}if(w(M,R)){throw"Illegal"}}var E=e[B];var D=[E.dM];var A=0;var x=0;var y="";try{var s,u=0;E.dM.buffer="";do{s=p(C,u);var t=G(s[0],s[1],s[2]);u+=s[0].length;if(!t){u+=s[1].length}}while(!s[2]);if(D.length>1){throw"Illegal"}return{r:A,keyword_count:x,value:y}}catch(H){if(H=="Illegal"){return{r:0,keyword_count:0,value:m(C)}}else{throw H}}}function g(t){var p={keyword_count:0,r:0,value:m(t)};var r=p;for(var q in e){if(!e.hasOwnProperty(q)){continue}var s=d(q,t);s.language=q;if(s.keyword_count+s.r>r.keyword_count+r.r){r=s}if(s.keyword_count+s.r>p.keyword_count+p.r){r=p;p=s}}if(r.language){p.second_best=r}return p}function i(r,q,p){if(q){r=r.replace(/^((<[^>]+>|\t)+)/gm,function(t,w,v,u){return w.replace(/\t/g,q)})}if(p){r=r.replace(/\n/g,"<br>")}return r}function n(t,w,r){var x=h(t,r);var v=a(t);var y,s;if(v){y=d(v,x)}else{return}var q=c(t);if(q.length){s=document.createElement("pre");s.innerHTML=y.value;y.value=k(q,c(s),x)}y.value=i(y.value,w,r);var u=t.className;if(!u.match("(\\s|^)(language-)?"+v+"(\\s|$)")){u=u?(u+" "+v):v}if(/MSIE [678]/.test(navigator.userAgent)&&t.tagName=="CODE"&&t.parentNode.tagName=="PRE"){s=t.parentNode;var p=document.createElement("div");p.innerHTML="<pre><code>"+y.value+"</code></pre>";t=p.firstChild.firstChild;p.firstChild.cN=s.cN;s.parentNode.replaceChild(p.firstChild,s)}else{t.innerHTML=y.value}t.className=u;t.result={language:v,kw:y.keyword_count,re:y.r};if(y.second_best){t.second_best={language:y.second_best.language,kw:y.second_best.keyword_count,re:y.second_best.r}}}function o(){if(o.called){return}o.called=true;var r=document.getElementsByTagName("pre");for(var p=0;p<r.length;p++){var q=b(r[p]);if(q){n(q,hljs.tabReplace)}}}function l(){if(window.addEventListener){window.addEventListener("DOMContentLoaded",o,false);window.addEventListener("load",o,false)}else{if(window.attachEvent){window.attachEvent("onload",o)}else{window.onload=o}}}var e={};this.LANGUAGES=e;this.highlight=d;this.highlightAuto=g;this.fixMarkup=i;this.highlightBlock=n;this.initHighlighting=o;this.initHighlightingOnLoad=l;this.IR="[a-zA-Z][a-zA-Z0-9_]*";this.UIR="[a-zA-Z_][a-zA-Z0-9_]*";this.NR="\\b\\d+(\\.\\d+)?";this.CNR="\\b(0[xX][a-fA-F0-9]+|(\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?)";this.BNR="\\b(0b[01]+)";this.RSR="!|!=|!==|%|%=|&|&&|&=|\\*|\\*=|\\+|\\+=|,|\\.|-|-=|/|/=|:|;|<|<<|<<=|<=|=|==|===|>|>=|>>|>>=|>>>|>>>=|\\?|\\[|\\{|\\(|\\^|\\^=|\\||\\|=|\\|\\||~";this.ER="(?![\\s\\S])";this.BE={b:"\\\\.",r:0};this.ASM={cN:"string",b:"'",e:"'",i:"\\n",c:[this.BE],r:0};this.QSM={cN:"string",b:'"',e:'"',i:"\\n",c:[this.BE],r:0};this.CLCM={cN:"comment",b:"//",e:"$"};this.CBLCLM={cN:"comment",b:"/\\*",e:"\\*/"};this.HCM={cN:"comment",b:"#",e:"$"};this.NM={cN:"number",b:this.NR,r:0};this.CNM={cN:"number",b:this.CNR,r:0};this.BNM={cN:"number",b:this.BNR,r:0};this.inherit=function(r,s){var p={};for(var q in r){p[q]=r[q]}if(s){for(var q in s){p[q]=s[q]}}return p}}();hljs.LANGUAGES.cpp=function(){var a={keyword:{"false":1,"int":1,"float":1,"while":1,"private":1,"char":1,"catch":1,"export":1,virtual:1,operator:2,sizeof:2,dynamic_cast:2,typedef:2,const_cast:2,"const":1,struct:1,"for":1,static_cast:2,union:1,namespace:1,unsigned:1,"long":1,"throw":1,"volatile":2,"static":1,"protected":1,bool:1,template:1,mutable:1,"if":1,"public":1,friend:2,"do":1,"return":1,"goto":1,auto:1,"void":2,"enum":1,"else":1,"break":1,"new":1,extern:1,using:1,"true":1,"class":1,asm:1,"case":1,typeid:1,"short":1,reinterpret_cast:2,"default":1,"double":1,register:1,explicit:1,signed:1,typename:1,"try":1,"this":1,"switch":1,"continue":1,wchar_t:1,inline:1,"delete":1,alignof:1,char16_t:1,char32_t:1,constexpr:1,decltype:1,noexcept:1,nullptr:1,static_assert:1,thread_local:1,restrict:1,_Bool:1,complex:1},built_in:{std:1,string:1,cin:1,cout:1,cerr:1,clog:1,stringstream:1,istringstream:1,ostringstream:1,auto_ptr:1,deque:1,list:1,queue:1,stack:1,vector:1,map:1,set:1,bitset:1,multiset:1,multimap:1,unordered_set:1,unordered_map:1,unordered_multiset:1,unordered_multimap:1,array:1,shared_ptr:1}};return{dM:{k:a,i:"</",c:[hljs.CLCM,hljs.CBLCLM,hljs.QSM,{cN:"string",b:"'\\\\?.",e:"'",i:"."},{cN:"number",b:"\\b(\\d+(\\.\\d*)?|\\.\\d+)(u|U|l|L|ul|UL|f|F)"},hljs.CNM,{cN:"preprocessor",b:"#",e:"$"},{cN:"stl_container",b:"\\b(deque|list|queue|stack|vector|map|set|bitset|multiset|multimap|unordered_map|unordered_set|unordered_multiset|unordered_multimap|array)\\s*<",e:">",k:a,r:10,c:["self"]}]}}}();hljs.LANGUAGES.r={dM:{c:[hljs.HCM,{cN:"number",b:"\\b0[xX][0-9a-fA-F]+[Li]?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+(?:[eE][+\\-]?\\d*)?L\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+\\.(?!\\d)(?:i\\b)?",e:hljs.IMMEDIATE_RE,r:1},{cN:"number",b:"\\b\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\.\\d+(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"keyword",b:"(?:tryCatch|library|setGeneric|setGroupGeneric)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\.",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\d+(?![\\w.])",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\b(?:function)",e:hljs.IMMEDIATE_RE,r:2},{cN:"keyword",b:"(?:if|in|break|next|repeat|else|for|return|switch|while|try|stop|warning|require|attach|detach|source|setMethod|setClass)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"literal",b:"(?:NA|NA_integer_|NA_real_|NA_character_|NA_complex_)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"literal",b:"(?:NULL|TRUE|FALSE|T|F|Inf|NaN)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"identifier",b:"[a-zA-Z.][a-zA-Z0-9._]*\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"<\\-(?!\\s*\\d)",e:hljs.IMMEDIATE_RE,r:2},{cN:"operator",b:"\\->|<\\-",e:hljs.IMMEDIATE_RE,r:1},{cN:"operator",b:"%%|~",e:hljs.IMMEDIATE_RE},{cN:"operator",b:">=|<=|==|!=|\\|\\||&&|=|\\+|\\-|\\*|/|\\^|>|<|!|&|\\||\\$|:",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"%",e:"%",i:"\\n",r:1},{cN:"identifier",b:"`",e:"`",r:0},{cN:"string",b:'"',e:'"',c:[hljs.BE],r:0},{cN:"string",b:"'",e:"'",c:[hljs.BE],r:0},{cN:"paren",b:"[[({\\])}]",e:hljs.IMMEDIATE_RE,r:0}]}};
+hljs.initHighlightingOnLoad();
+</script>
+
+
+
+
+</head>
+
+<body>
+<h1>Shopping数据关联规则挖掘</h1>
+
+<h2>1.  数据预处理</h2>
+
+<p>导入shopping数据，将购买数据转为逻辑变量，查看变量性质。</p>
+
+<p>变量分为两类：家居用品（主要是食物）以及人口统计特征（如性别、年龄、婚姻状况等）</p>
+
+<pre><code class="r">load(&quot;shopping.rda&quot;)
+for (i in 1:10) {
+    shopping[, i] = as.logical(shopping[, i])
+}
+summary(shopping)
+</code></pre>
+
+<pre><code>##  Ready_made      Frozen_foods     Alcohol        Fresh_Vegetables
+##  Mode :logical   Mode :logical   Mode :logical   Mode :logical   
+##  FALSE:399       FALSE:470       FALSE:476       FALSE:721       
+##  TRUE :387       TRUE :316       TRUE :310       TRUE :65        
+##  NA&#39;s :0         NA&#39;s :0         NA&#39;s :0         NA&#39;s :0         
+##                                                                  
+##     Milk         Bakery_goods    Fresh_meat      Toiletries     
+##  Mode :logical   Mode :logical   Mode :logical   Mode :logical  
+##  FALSE:638       FALSE:449       FALSE:763       FALSE:708      
+##  TRUE :148       TRUE :337       TRUE :23        TRUE :78       
+##  NA&#39;s :0         NA&#39;s :0         NA&#39;s :0         NA&#39;s :0        
+##                                                                 
+##    Snacks        Tinned_goods       GENDER          Age     
+##  Mode :logical   Mode :logical   Female:423   18 to 30:236  
+##  FALSE:413       FALSE:428       Male  :363   31 to 40:195  
+##  TRUE :373       TRUE :358                    41 to 50:134  
+##  NA&#39;s :0         NA&#39;s :0                      51 to 60:130  
+##                                               Over 60 : 91  
+##       MARITAL    CHILDREN  WORKING  
+##  Divorced : 98   No :513   No :132  
+##  Married  :189   Yes:273   Yes:654  
+##  Separated:150                      
+##  Single   :199                      
+##  Widowed  :150
+</code></pre>
+
+<p>可以看到数据无缺失值，在食物类数据中，有的食物种类的购买量与非购买量是比较均匀的，而有的食物如新鲜蔬菜、鲜肉等购买行为较少，在这种情形下我们实际关注的是人们购买稀有食品的行为；因此，当不购买某种食品的比例过高时（设为0.2），我们忽略这种行为。</p>
+
+<pre><code class="r">shopping[, 1:10] = apply(shopping[, 1:10], 2, function(x) {
+    x = as.logical(x)
+    y = table(x)/length(x)
+    if (y[2] &lt;= 0.2) 
+        x[!x] = NA
+    return(x)
+})
+summary(shopping)
+</code></pre>
+
+<pre><code>##  Ready_made      Frozen_foods     Alcohol        Fresh_Vegetables
+##  Mode :logical   Mode :logical   Mode :logical   Mode:logical    
+##  FALSE:399       FALSE:470       FALSE:476       TRUE:65         
+##  TRUE :387       TRUE :316       TRUE :310       NA&#39;s:721        
+##  NA&#39;s :0         NA&#39;s :0         NA&#39;s :0                         
+##                                                                  
+##    Milk         Bakery_goods    Fresh_meat     Toiletries    
+##  Mode:logical   Mode :logical   Mode:logical   Mode:logical  
+##  TRUE:148       FALSE:449       TRUE:23        TRUE:78       
+##  NA&#39;s:638       TRUE :337       NA&#39;s:763       NA&#39;s:708      
+##                 NA&#39;s :0                                      
+##                                                              
+##    Snacks        Tinned_goods       GENDER          Age     
+##  Mode :logical   Mode :logical   Female:423   18 to 30:236  
+##  FALSE:413       FALSE:428       Male  :363   31 to 40:195  
+##  TRUE :373       TRUE :358                    41 to 50:134  
+##  NA&#39;s :0         NA&#39;s :0                      51 to 60:130  
+##                                               Over 60 : 91  
+##       MARITAL    CHILDREN  WORKING  
+##  Divorced : 98   No :513   No :132  
+##  Married  :189   Yes:273   Yes:654  
+##  Separated:150                      
+##  Single   :199                      
+##  Widowed  :150
+</code></pre>
+
+<h2>2.  关联规则挖掘</h2>
+
+<p>用R中的arules包挖掘关联规则。</p>
+
+<p>将数据转化成transaction格式。</p>
+
+<pre><code class="r">library(arules)
+shop_trans = as(shopping, &quot;transactions&quot;)
+summary(shop_trans)
+</code></pre>
+
+<pre><code>## transactions as itemMatrix in sparse format with
+##  786 rows (elements/itemsets/transactions) and
+##  32 columns (items) and a density of 0.3562 
+## 
+## most frequent items:
+##        WORKING=Yes       CHILDREN=No       Alcohol=FALSE 
+##                654                513                476 
+## Frozen_foods=FALSE Bakery_goods=FALSE            (Other) 
+##                470                449               6398 
+## 
+## element (itemset/transaction) length distribution:
+## sizes
+##  11  12  13  14  15 
+## 557 159  56  13   1 
+## 
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##    11.0    11.0    11.0    11.4    12.0    15.0 
+## 
+## includes extended item information - examples:
+##               labels    variables levels
+## 1   Ready_made=FALSE   Ready_made  FALSE
+## 2    Ready_made=TRUE   Ready_made   TRUE
+## 3 Frozen_foods=FALSE Frozen_foods  FALSE
+## 
+## includes extended transaction information - examples:
+##   transactionID
+## 1             1
+## 2             2
+## 3             3
+</code></pre>
+
+<p>查看item的频率</p>
+
+<pre><code class="r">itemFrequencyPlot(shop_trans, support = 0.2, cex.names = 0.8)
+</code></pre>
+
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAtAAAAGwCAMAAAC3laJpAAAA/1BMVEX9/v0AAAAAADkAAGUAOTkAOY8AZmUAZo8AZrU5AAA5ADk5AGU5OQA5OTk5OY85Zo85ZrU5j485j7U5j9plAABlADllAGVlOTllOY9lZmVlZrVlj2Vlj7Vlj9pltbVltdpltf2POQCPOTmPOWWPZjmPZo+PjzmPj2WPj4+Pj7WPj9qPtY+PtbWPtf2P27WP29qP2/21ZgC1Zjm1ZmW1jzm1j2W1tWW1tbW1tdq1tf2124+129q12/21/rW1/tq1/v2+vr7ajznaj2Xaj4/atWXatY/atbXa24/a29ra2/3a/rXa/tra/v39tWX9tY/9tbX924/929r9/rX9/tr9/v2k3qjMAAAAVXRSTlP///////////////////////////////////////////////////////////////////////////////////////////////////////////////8AsKEHzwAAAAlwSFlzAAALEgAACxIB0t1+/AAAHrJJREFUeJztnQub28Z1hkNJ63DlSxPvWknd2NlV0lya1F1aad2bu6GlNOtYTBku/v9vKWYAUCvjnG+IQwA8M/rex0/0REfDGZAvBgeDmcEPKkIK4genbgAhY0KhSVFQaFIUFJoUBYUmRUGhSVFQaFIUFJoUBYUmRUGhSVFQaFIUFJoUBYUmRUGhSVFQaFIUFJoUBYUmRUGhSVFQaFIUFJoUBYUmRUGhSVFQaFIUFJoUBYUmRUGhSVFQaFIUFJoUBYUmRUGhSVFQaFIUFJoUBYUmRUGhSVFQaFIUFJoUBYUmRUGhSVFQaFIUFJoUBYUmRUGhSVFQaFIUFJoUBYUmRUGhSVFQaFIUFJoUBYUmRUGhSVFQaFIUFJoUBYUmRUGhSVFQaFIUFJoUBYUmRUGhSVFQaHJqFgqmD6PQ5NQs/ihCoUmezCz09nyxXC8Wj29Nn09IinmFvn9+U62XtdcfvTZVQEiCeYXePbut1hfNn4RMAHtoUhTz59AXzKHJdHCUgxQFhSZFcRqhH9wUHvcoh5C3cdNDU2gyBhSaFMX8oxwBYZSDQpMxmHkc+voq/rk5641DU2gyBvM/KXz458OGmGok5G3YQ5OimDmH3l0yhyZTwlEOUhQUmhQFhSZFQaFJ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" alt="plot of chunk unnamed-chunk-4"/> </p>
+
+<p>用apriori算法挖掘关联规则。查看item的频率分布，可知item freqency的25分位数为0.1838，设置最小support为0.1，confidence为0.7,lift值为1.2</p>
+
+<pre><code class="r">itemFreq = itemFrequency(shop_trans, type = &quot;relative&quot;)
+quantile(itemFreq)
+</code></pre>
+
+<pre><code>##      0%     25%     50%     75%    100% 
+## 0.02926 0.18384 0.37087 0.51209 0.83206
+</code></pre>
+
+<pre><code class="r"># apriori
+rules &lt;- apriori(shop_trans, parameter = list(support = 0.1, confidence = 0.7))
+</code></pre>
+
+<pre><code>## 
+## parameter specification:
+##  confidence minval smax arem  aval originalSupport support minlen maxlen
+##         0.7    0.1    1 none FALSE            TRUE     0.1      1     10
+##  target   ext
+##   rules FALSE
+## 
+## algorithmic control:
+##  filter tree heap memopt load sort verbose
+##     0.1 TRUE TRUE  FALSE TRUE    2    TRUE
+## 
+## apriori - find association rules with the apriori algorithm
+## version 4.21 (2004.05.09)        (c) 1996-2004   Christian Borgelt
+## set item appearances ...[0 item(s)] done [0.00s].
+## set transactions ...[32 item(s), 786 transaction(s)] done [0.00s].
+## sorting and recoding items ... [29 item(s)] done [0.00s].
+## creating transaction tree ... done [0.00s].
+## checking subsets of size 1 2 3 4 5 6 done [0.00s].
+## writing ... [1227 rule(s)] done [0.00s].
+## creating S4 object  ... done [0.00s].
+</code></pre>
+
+<pre><code class="r">rule_lif = subset(rules, subset = lift &gt; 1.2)
+summary(rule_lif)
+</code></pre>
+
+<pre><code>## set of 633 rules
+## 
+## rule length distribution (lhs + rhs):sizes
+##   2   3   4   5   6 
+##   8 129 324 167   5 
+## 
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##    2.00    4.00    4.00    4.05    5.00    6.00 
+## 
+## summary of quality measures:
+##     support        confidence         lift     
+##  Min.   :0.101   Min.   :0.700   Min.   :1.20  
+##  1st Qu.:0.108   1st Qu.:0.739   1st Qu.:1.27  
+##  Median :0.122   Median :0.784   Median :1.34  
+##  Mean   :0.134   Mean   :0.790   Mean   :1.38  
+##  3rd Qu.:0.148   3rd Qu.:0.829   3rd Qu.:1.44  
+##  Max.   :0.396   Max.   :0.963   Max.   :2.66  
+## 
+## mining info:
+##        data ntransactions support confidence
+##  shop_trans           786     0.1        0.7
+</code></pre>
+
+<p>分别按照support和confidence排序，查看前20的规则。</p>
+
+<pre><code class="r">inspect(head(sort(rule_lif, by = &quot;support&quot;), n = 20))
+</code></pre>
+
+<pre><code>##    lhs                     rhs                  support confidence  lift
+## 1  {Ready_made=TRUE}    =&gt; {CHILDREN=No }        0.3957     0.8036 1.231
+## 2  {Ready_made=TRUE,                                                    
+##     WORKING=Yes}        =&gt; {CHILDREN=No }        0.3537     0.8225 1.260
+## 3  {Alcohol=TRUE}       =&gt; {CHILDREN=No }        0.3270     0.8290 1.270
+## 4  {Frozen_foods=FALSE,                                                 
+##     Bakery_goods=FALSE} =&gt; {Alcohol=FALSE}       0.2990     0.7655 1.264
+## 5  {Alcohol=FALSE,                                                      
+##     Bakery_goods=FALSE} =&gt; {Frozen_foods=FALSE}  0.2990     0.7630 1.276
+## 6  {Alcohol=TRUE,                                                       
+##     WORKING=Yes}        =&gt; {CHILDREN=No }        0.2939     0.8493 1.301
+## 7  {Frozen_foods=TRUE,                                                  
+##     WORKING=Yes}        =&gt; {CHILDREN=No }        0.2837     0.8168 1.252
+## 8  {CHILDREN=Yes}       =&gt; {Alcohol=FALSE}       0.2799     0.8059 1.331
+## 9  {Bakery_goods=FALSE,                                                 
+##     Tinned_goods=FALSE} =&gt; {CHILDREN=No }        0.2735     0.7963 1.220
+## 10 {Bakery_goods=FALSE,                                                 
+##     CHILDREN=No }       =&gt; {Tinned_goods=FALSE}  0.2735     0.7049 1.295
+## 11 {Frozen_foods=FALSE,                                                 
+##     GENDER=Female}      =&gt; {Alcohol=FALSE}       0.2634     0.7695 1.271
+## 12 {Alcohol=FALSE,                                                      
+##     GENDER=Female}      =&gt; {Frozen_foods=FALSE}  0.2634     0.7473 1.250
+## 13 {CHILDREN=Yes}       =&gt; {Frozen_foods=FALSE}  0.2595     0.7473 1.250
+## 14 {CHILDREN=Yes}       =&gt; {Ready_made=FALSE}    0.2506     0.7216 1.422
+## 15 {Frozen_foods=FALSE,                                                 
+##     Snacks=FALSE}       =&gt; {Alcohol=FALSE}       0.2494     0.7396 1.221
+## 16 {Snacks=FALSE,                                                       
+##     Tinned_goods=FALSE} =&gt; {CHILDREN=No }        0.2405     0.8182 1.254
+## 17 {Frozen_foods=FALSE,                                                 
+##     Bakery_goods=FALSE,                                                 
+##     WORKING=Yes}        =&gt; {Alcohol=FALSE}       0.2392     0.7642 1.262
+## 18 {Alcohol=FALSE,                                                      
+##     Bakery_goods=FALSE,                                                 
+##     WORKING=Yes}        =&gt; {Frozen_foods=FALSE}  0.2392     0.7520 1.258
+## 19 {Alcohol=FALSE,                                                      
+##     Tinned_goods=FALSE} =&gt; {Frozen_foods=FALSE}  0.2379     0.7362 1.231
+## 20 {Bakery_goods=FALSE,                                                 
+##     Tinned_goods=FALSE,                                                 
+##     WORKING=Yes}        =&gt; {CHILDREN=No }        0.2379     0.7924 1.214
+</code></pre>
+
+<pre><code class="r">inspect(head(sort(rule_lif, by = &quot;confidence&quot;), n = 20))
+</code></pre>
+
+<pre><code>##    lhs                     rhs                  support confidence  lift
+## 1  {Frozen_foods=TRUE,                                                  
+##     Alcohol=TRUE,                                                       
+##     GENDER=Male  ,                                                      
+##     WORKING=Yes}        =&gt; {CHILDREN=No }        0.1005     0.9634 1.476
+## 2  {Frozen_foods=TRUE,                                                  
+##     Tinned_goods=FALSE,                                                 
+##     GENDER=Male  }      =&gt; {CHILDREN=No }        0.1094     0.9451 1.448
+## 3  {Alcohol=TRUE,                                                       
+##     Bakery_goods=FALSE,                                                 
+##     Tinned_goods=FALSE,                                                 
+##     WORKING=Yes}        =&gt; {CHILDREN=No }        0.1043     0.9425 1.444
+## 4  {Frozen_foods=FALSE,                                                 
+##     Bakery_goods=FALSE,                                                 
+##     CHILDREN=Yes,                                                       
+##     WORKING=Yes}        =&gt; {Alcohol=FALSE}       0.1132     0.9368 1.547
+## 5  {Frozen_foods=FALSE,                                                 
+##     Alcohol=FALSE,                                                      
+##     Tinned_goods=FALSE,                                                 
+##     CHILDREN=No }       =&gt; {Ready_made=TRUE}     0.1260     0.9340 1.897
+## 6  {Tinned_goods=FALSE,                                                 
+##     GENDER=Male  ,                                                      
+##     Age=18 to 30}       =&gt; {CHILDREN=No }        0.1247     0.9333 1.430
+## 7  {Bakery_goods=FALSE,                                                 
+##     Snacks=FALSE,                                                       
+##     Tinned_goods=FALSE,                                                 
+##     GENDER=Male  }      =&gt; {CHILDREN=No }        0.1056     0.9326 1.429
+## 8  {Alcohol=TRUE,                                                       
+##     Bakery_goods=FALSE,                                                 
+##     Tinned_goods=FALSE} =&gt; {CHILDREN=No }        0.1209     0.9314 1.427
+## 9  {Bakery_goods=FALSE,                                                 
+##     GENDER=Male  ,                                                      
+##     Age=18 to 30}       =&gt; {CHILDREN=No }        0.1031     0.9310 1.426
+## 10 {GENDER=Male  ,                                                      
+##     Age=18 to 30,                                                       
+##     MARITAL=Single   }  =&gt; {CHILDREN=No }        0.1005     0.9294 1.424
+## 11 {Frozen_foods=TRUE,                                                  
+##     Alcohol=TRUE,                                                       
+##     GENDER=Male  }      =&gt; {CHILDREN=No }        0.1145     0.9278 1.422
+## 12 {Ready_made=TRUE,                                                    
+##     Tinned_goods=FALSE,                                                 
+##     GENDER=Male  }      =&gt; {CHILDREN=No }        0.1285     0.9266 1.420
+## 13 {Alcohol=TRUE,                                                       
+##     Bakery_goods=FALSE,                                                 
+##     WORKING=Yes}        =&gt; {CHILDREN=No }        0.1425     0.9256 1.418
+## 14 {Frozen_foods=FALSE,                                                 
+##     Alcohol=FALSE,                                                      
+##     Tinned_goods=FALSE,                                                 
+##     CHILDREN=No ,                                                       
+##     WORKING=Yes}        =&gt; {Ready_made=TRUE}     0.1107     0.9255 1.880
+## 15 {Ready_made=FALSE,                                                   
+##     Frozen_foods=FALSE,                                                 
+##     Bakery_goods=FALSE,                                                 
+##     CHILDREN=Yes}       =&gt; {Alcohol=FALSE}       0.1221     0.9231 1.524
+## 16 {Ready_made=FALSE,                                                   
+##     Alcohol=FALSE,                                                      
+##     Bakery_goods=FALSE,                                                 
+##     CHILDREN=Yes}       =&gt; {Frozen_foods=FALSE}  0.1221     0.9231 1.544
+## 17 {GENDER=Male  ,                                                      
+##     Age=18 to 30}       =&gt; {CHILDREN=No }        0.1489     0.9213 1.412
+## 18 {Frozen_foods=FALSE,                                                 
+##     Bakery_goods=FALSE,                                                 
+##     CHILDREN=Yes}       =&gt; {Alcohol=FALSE}       0.1476     0.9206 1.520
+## 19 {Ready_made=TRUE,                                                    
+##     Tinned_goods=FALSE,                                                 
+##     GENDER=Male  ,                                                      
+##     WORKING=Yes}        =&gt; {CHILDREN=No }        0.1145     0.9184 1.407
+## 20 {Ready_made=TRUE,                                                    
+##     Bakery_goods=FALSE,                                                 
+##     Tinned_goods=FALSE} =&gt; {CHILDREN=No }        0.1527     0.9160 1.404
+</code></pre>
+
+<h2>2.  进一步挖掘</h2>
+
+<p>可以看到得到的规则鱼龙混杂，如果要进行有方向的关联规则挖掘，则应该将数据转化为dataframe形式，通过正则表达式做进行进一步处理。对于rules按照support confidence降序排列。</p>
+
+<pre><code class="r">### convert to dataframe
+Rules = as(rule_lif, &quot;data.frame&quot;)
+Rules$rules = as.character(Rules$rules)
+rule_spl = do.call(rbind, sapply(Rules$rules, strsplit, &quot;=&gt;&quot;))
+rownames(rule_spl) = NULL
+colnames(rule_spl) = c(&quot;lhs&quot;, &quot;rhs&quot;)
+Rules = data.frame(Rules, rule_spl)
+Rules = Rules[order(Rules$support, Rules$confidence, decreasing = T), ]
+</code></pre>
+
+<h3>(1) 购买行为</h3>
+
+<p>当要求right hand rules必须出现日常用品项时，我们可以把视角局限到人们的购买行为。</p>
+
+<pre><code class="r">supervise = Rules[grepl(&quot;(TRUE)|(FALSE)&quot;, Rules$rhs, perl = T), ]
+supervise[1:20, 1:4]
+</code></pre>
+
+<pre><code>##                                                                      rules
+## 356             {Frozen_foods=FALSE,Bakery_goods=FALSE} =&gt; {Alcohol=FALSE}
+## 357             {Alcohol=FALSE,Bakery_goods=FALSE} =&gt; {Frozen_foods=FALSE}
+## 21                                       {CHILDREN=Yes} =&gt; {Alcohol=FALSE}
+## 341              {Bakery_goods=FALSE,CHILDREN=No } =&gt; {Tinned_goods=FALSE}
+## 351                  {Frozen_foods=FALSE,GENDER=Female} =&gt; {Alcohol=FALSE}
+## 352                  {Alcohol=FALSE,GENDER=Female} =&gt; {Frozen_foods=FALSE}
+## 20                                  {CHILDREN=Yes} =&gt; {Frozen_foods=FALSE}
+## 19                                    {CHILDREN=Yes} =&gt; {Ready_made=FALSE}
+## 332                   {Frozen_foods=FALSE,Snacks=FALSE} =&gt; {Alcohol=FALSE}
+## 964 {Frozen_foods=FALSE,Bakery_goods=FALSE,WORKING=Yes} =&gt; {Alcohol=FALSE}
+## 965 {Alcohol=FALSE,Bakery_goods=FALSE,WORKING=Yes} =&gt; {Frozen_foods=FALSE}
+## 343             {Alcohol=FALSE,Tinned_goods=FALSE} =&gt; {Frozen_foods=FALSE}
+## 945  {Bakery_goods=FALSE,CHILDREN=No ,WORKING=Yes} =&gt; {Tinned_goods=FALSE}
+## 182                   {Frozen_foods=FALSE,CHILDREN=Yes} =&gt; {Alcohol=FALSE}
+## 183                   {Alcohol=FALSE,CHILDREN=Yes} =&gt; {Frozen_foods=FALSE}
+## 319          {Ready_made=FALSE,Frozen_foods=FALSE} =&gt; {Bakery_goods=FALSE}
+## 16                                  {Age=18 to 30} =&gt; {Tinned_goods=FALSE}
+## 958      {Frozen_foods=FALSE,GENDER=Female,WORKING=Yes} =&gt; {Alcohol=FALSE}
+## 959      {Alcohol=FALSE,GENDER=Female,WORKING=Yes} =&gt; {Frozen_foods=FALSE}
+## 349                  {Bakery_goods=FALSE,GENDER=Female} =&gt; {Alcohol=FALSE}
+##     support confidence  lift
+## 356  0.2990     0.7655 1.264
+## 357  0.2990     0.7630 1.276
+## 21   0.2799     0.8059 1.331
+## 341  0.2735     0.7049 1.295
+## 351  0.2634     0.7695 1.271
+## 352  0.2634     0.7473 1.250
+## 20   0.2595     0.7473 1.250
+## 19   0.2506     0.7216 1.422
+## 332  0.2494     0.7396 1.221
+## 964  0.2392     0.7642 1.262
+## 965  0.2392     0.7520 1.258
+## 343  0.2379     0.7362 1.231
+## 945  0.2379     0.7083 1.301
+## 182  0.2265     0.8725 1.441
+## 183  0.2265     0.8091 1.353
+## 319  0.2265     0.7149 1.251
+## 16   0.2214     0.7373 1.354
+## 958  0.2163     0.7556 1.248
+## 959  0.2163     0.7359 1.231
+## 349  0.2150     0.7478 1.235
+</code></pre>
+
+<p>进一步的，我们可以分类查看不同类别的商品关联的购买行为。</p>
+
+<pre><code class="r">cate_supvise = lapply(colnames(shopping[1:10]), function(x) {
+    y = Rules[grepl(x, Rules$rhs, perl = T), 1:4]
+    cat(x, &quot;\n&quot;)
+    show(y[1:min(nrow(y), 10), ])
+    cat(&quot;\n&quot;)
+    return(y)
+})
+</code></pre>
+
+<pre><code>## Ready_made 
+##                                                                     rules
+## 19                                   {CHILDREN=Yes} =&gt; {Ready_made=FALSE}
+## 166                    {Alcohol=FALSE,CHILDREN=Yes} =&gt; {Ready_made=FALSE}
+## 164               {Frozen_foods=FALSE,CHILDREN=Yes} =&gt; {Ready_made=FALSE}
+## 246                 {Bakery_goods=TRUE,CHILDREN=No } =&gt; {Ready_made=TRUE}
+## 168                      {CHILDREN=Yes,WORKING=Yes} =&gt; {Ready_made=FALSE}
+## 632     {Bakery_goods=TRUE,CHILDREN=No ,WORKING=Yes} =&gt; {Ready_made=TRUE}
+## 459 {Frozen_foods=FALSE,Alcohol=FALSE,CHILDREN=Yes} =&gt; {Ready_made=FALSE}
+## 853  {Frozen_foods=FALSE,Alcohol=FALSE,CHILDREN=No } =&gt; {Ready_made=TRUE}
+## 466        {Alcohol=FALSE,CHILDREN=Yes,WORKING=Yes} =&gt; {Ready_made=FALSE}
+## 161                    {GENDER=Female,CHILDREN=Yes} =&gt; {Ready_made=FALSE}
+##     support confidence  lift
+## 19   0.2506     0.7216 1.422
+## 166  0.2112     0.7545 1.486
+## 164  0.1947     0.7500 1.477
+## 246  0.1947     0.7356 1.494
+## 168  0.1845     0.7073 1.393
+## 632  0.1756     0.7459 1.515
+## 459  0.1743     0.7697 1.516
+## 853  0.1603     0.7730 1.570
+## 466  0.1552     0.7439 1.465
+## 161  0.1552     0.7093 1.397
+## 
+## Frozen_foods 
+##                                                                      rules
+## 357             {Alcohol=FALSE,Bakery_goods=FALSE} =&gt; {Frozen_foods=FALSE}
+## 352                  {Alcohol=FALSE,GENDER=Female} =&gt; {Frozen_foods=FALSE}
+## 20                                  {CHILDREN=Yes} =&gt; {Frozen_foods=FALSE}
+## 965 {Alcohol=FALSE,Bakery_goods=FALSE,WORKING=Yes} =&gt; {Frozen_foods=FALSE}
+## 343             {Alcohol=FALSE,Tinned_goods=FALSE} =&gt; {Frozen_foods=FALSE}
+## 183                   {Alcohol=FALSE,CHILDREN=Yes} =&gt; {Frozen_foods=FALSE}
+## 959      {Alcohol=FALSE,GENDER=Female,WORKING=Yes} =&gt; {Frozen_foods=FALSE}
+## 348             {Bakery_goods=FALSE,GENDER=Female} =&gt; {Frozen_foods=FALSE}
+## 309                {Ready_made=TRUE,Alcohol=FALSE} =&gt; {Frozen_foods=FALSE}
+## 947 {Alcohol=FALSE,Tinned_goods=FALSE,WORKING=Yes} =&gt; {Frozen_foods=FALSE}
+##     support confidence  lift
+## 357  0.2990     0.7630 1.276
+## 352  0.2634     0.7473 1.250
+## 20   0.2595     0.7473 1.250
+## 965  0.2392     0.7520 1.258
+## 343  0.2379     0.7362 1.231
+## 183  0.2265     0.8091 1.353
+## 959  0.2163     0.7359 1.231
+## 348  0.2137     0.7434 1.243
+## 309  0.2125     0.7591 1.269
+## 947  0.2087     0.7421 1.241
+## 
+## Alcohol 
+##                                                                      rules
+## 356             {Frozen_foods=FALSE,Bakery_goods=FALSE} =&gt; {Alcohol=FALSE}
+## 21                                       {CHILDREN=Yes} =&gt; {Alcohol=FALSE}
+## 351                  {Frozen_foods=FALSE,GENDER=Female} =&gt; {Alcohol=FALSE}
+## 332                   {Frozen_foods=FALSE,Snacks=FALSE} =&gt; {Alcohol=FALSE}
+## 964 {Frozen_foods=FALSE,Bakery_goods=FALSE,WORKING=Yes} =&gt; {Alcohol=FALSE}
+## 182                   {Frozen_foods=FALSE,CHILDREN=Yes} =&gt; {Alcohol=FALSE}
+## 958      {Frozen_foods=FALSE,GENDER=Female,WORKING=Yes} =&gt; {Alcohol=FALSE}
+## 349                  {Bakery_goods=FALSE,GENDER=Female} =&gt; {Alcohol=FALSE}
+## 308                {Ready_made=TRUE,Frozen_foods=FALSE} =&gt; {Alcohol=FALSE}
+## 165                     {Ready_made=FALSE,CHILDREN=Yes} =&gt; {Alcohol=FALSE}
+##     support confidence  lift
+## 356  0.2990     0.7655 1.264
+## 21   0.2799     0.8059 1.331
+## 351  0.2634     0.7695 1.271
+## 332  0.2494     0.7396 1.221
+## 964  0.2392     0.7642 1.262
+## 182  0.2265     0.8725 1.441
+## 958  0.2163     0.7556 1.248
+## 349  0.2150     0.7478 1.235
+## 308  0.2125     0.7557 1.248
+## 165  0.2112     0.8426 1.391
+## 
+## Fresh_Vegetables 
+##    rules support confidence lift
+## NA  &lt;NA&gt;      NA         NA   NA
+## 
+## Milk 
+##    rules support confidence lift
+## NA  &lt;NA&gt;      NA         NA   NA
+## 
+## Bakery_goods 
+##                                                                            rules
+## 319                {Ready_made=FALSE,Frozen_foods=FALSE} =&gt; {Bakery_goods=FALSE}
+## 320                      {Ready_made=FALSE,CHILDREN=No } =&gt; {Bakery_goods=FALSE}
+## 886    {Ready_made=FALSE,Frozen_foods=FALSE,WORKING=Yes} =&gt; {Bakery_goods=FALSE}
+## 893       {Snacks=FALSE,Tinned_goods=FALSE,CHILDREN=No } =&gt; {Bakery_goods=FALSE}
+## 260                     {Ready_made=FALSE,GENDER=Male  } =&gt; {Bakery_goods=FALSE}
+## 937 {Frozen_foods=FALSE,Tinned_goods=FALSE,CHILDREN=No } =&gt; {Bakery_goods=FALSE}
+## 884  {Ready_made=FALSE,Frozen_foods=FALSE,Alcohol=FALSE} =&gt; {Bakery_goods=FALSE}
+## 889          {Ready_made=FALSE,CHILDREN=No ,WORKING=Yes} =&gt; {Bakery_goods=FALSE}
+## 941      {Alcohol=FALSE,Tinned_goods=FALSE,CHILDREN=No } =&gt; {Bakery_goods=FALSE}
+## 962      {Frozen_foods=FALSE,Alcohol=FALSE,CHILDREN=No } =&gt; {Bakery_goods=FALSE}
+##     support confidence  lift
+## 319  0.2265     0.7149 1.251
+## 320  0.1870     0.7277 1.274
+## 886  0.1756     0.7077 1.239
+## 893  0.1718     0.7143 1.250
+## 260  0.1692     0.7389 1.293
+## 937  0.1628     0.7072 1.238
+## 884  0.1616     0.7299 1.278
+## 889  0.1578     0.7251 1.269
+## 941  0.1527     0.7453 1.305
+## 962  0.1514     0.7301 1.278
+## 
+## Fresh_meat 
+##    rules support confidence lift
+## NA  &lt;NA&gt;      NA         NA   NA
+## 
+## Toiletries 
+##    rules support confidence lift
+## NA  &lt;NA&gt;      NA         NA   NA
+## 
+## Snacks 
+##                                                                                        rules
+## 1076  {Ready_made=TRUE,Frozen_foods=FALSE,Tinned_goods=FALSE,CHILDREN=No } =&gt; {Snacks=FALSE}
+## 708                {Ready_made=FALSE,Bakery_goods=FALSE,Tinned_goods=TRUE} =&gt; {Snacks=FALSE}
+## 1071 {Ready_made=TRUE,Frozen_foods=FALSE,Alcohol=FALSE,Tinned_goods=FALSE} =&gt; {Snacks=FALSE}
+##      support confidence  lift
+## 1076  0.1132     0.7120 1.355
+## 708   0.1120     0.7097 1.351
+## 1071  0.1069     0.7000 1.332
+## 
+## Tinned_goods 
+##                                                                            rules
+## 341                    {Bakery_goods=FALSE,CHILDREN=No } =&gt; {Tinned_goods=FALSE}
+## 945        {Bakery_goods=FALSE,CHILDREN=No ,WORKING=Yes} =&gt; {Tinned_goods=FALSE}
+## 16                                        {Age=18 to 30} =&gt; {Tinned_goods=FALSE}
+## 137                          {Age=18 to 30,CHILDREN=No } =&gt; {Tinned_goods=FALSE}
+## 894       {Bakery_goods=FALSE,Snacks=FALSE,CHILDREN=No } =&gt; {Tinned_goods=FALSE}
+## 139                           {Age=18 to 30,WORKING=Yes} =&gt; {Tinned_goods=FALSE}
+## 826     {Ready_made=TRUE,Frozen_foods=FALSE,WORKING=Yes} =&gt; {Tinned_goods=FALSE}
+## 300                 {Ready_made=TRUE,Bakery_goods=FALSE} =&gt; {Tinned_goods=FALSE}
+## 938 {Frozen_foods=FALSE,Bakery_goods=FALSE,CHILDREN=No } =&gt; {Tinned_goods=FALSE}
+## 676      {Bakery_goods=FALSE,GENDER=Male  ,CHILDREN=No } =&gt; {Tinned_goods=FALSE}
+##     support confidence  lift
+## 341  0.2735     0.7049 1.295
+## 945  0.2379     0.7083 1.301
+## 16   0.2214     0.7373 1.354
+## 137  0.1718     0.7714 1.417
+## 894  0.1718     0.7143 1.312
+## 139  0.1692     0.7348 1.349
+## 826  0.1679     0.7097 1.303
+## 300  0.1667     0.7043 1.293
+## 938  0.1628     0.7072 1.299
+## 676  0.1603     0.7925 1.455
+</code></pre>
+
+<p>如果我们只关注相关人群特征的购买行为，则可以对规则做限制，使人群特征只出现在左边，而购买行为只出现在右边。</p>
+
+<pre><code class="r">string = paste(&quot;(&quot;, paste(colnames(shopping[11:15]), collapse = &quot;)|(&quot;), &quot;)&quot;, 
+    sep = &quot;&quot;)
+people = Rules[grepl(string, Rules$lhs) &amp; !grepl(&quot;(TRUE)|(FALSE)&quot;, Rules$lhs) &amp; 
+    grepl(&quot;(TRUE)|(FALSE)&quot;, Rules$rhs) &amp; !grepl(string, Rules$rhs), ]
+people[1:20, 1:4]
+</code></pre>
+
+<pre><code>##                                                                 rules
+## 21                                  {CHILDREN=Yes} =&gt; {Alcohol=FALSE}
+## 20                             {CHILDREN=Yes} =&gt; {Frozen_foods=FALSE}
+## 19                               {CHILDREN=Yes} =&gt; {Ready_made=FALSE}
+## 16                             {Age=18 to 30} =&gt; {Tinned_goods=FALSE}
+## 187                     {CHILDREN=Yes,WORKING=Yes} =&gt; {Alcohol=FALSE}
+## 185                {CHILDREN=Yes,WORKING=Yes} =&gt; {Frozen_foods=FALSE}
+## 168                  {CHILDREN=Yes,WORKING=Yes} =&gt; {Ready_made=FALSE}
+## 177                   {GENDER=Female,CHILDREN=Yes} =&gt; {Alcohol=FALSE}
+## 137               {Age=18 to 30,CHILDREN=No } =&gt; {Tinned_goods=FALSE}
+## 139                {Age=18 to 30,WORKING=Yes} =&gt; {Tinned_goods=FALSE}
+## 176              {GENDER=Female,CHILDREN=Yes} =&gt; {Frozen_foods=FALSE}
+## 161                {GENDER=Female,CHILDREN=Yes} =&gt; {Ready_made=FALSE}
+## 482       {GENDER=Female,CHILDREN=Yes,WORKING=Yes} =&gt; {Alcohol=FALSE}
+## 110          {MARITAL=Single   ,CHILDREN=No } =&gt; {Tinned_goods=FALSE}
+## 115          {MARITAL=Single   ,CHILDREN=No } =&gt; {Bakery_goods=FALSE}
+## 121              {GENDER=Male  ,Age=18 to 30} =&gt; {Tinned_goods=FALSE}
+## 99           {Age=18 to 30,MARITAL=Single   } =&gt; {Tinned_goods=FALSE}
+## 480  {GENDER=Female,CHILDREN=Yes,WORKING=Yes} =&gt; {Frozen_foods=FALSE}
+## 450    {GENDER=Female,CHILDREN=Yes,WORKING=Yes} =&gt; {Ready_made=FALSE}
+## 389 {GENDER=Male  ,Age=18 to 30,CHILDREN=No } =&gt; {Tinned_goods=FALSE}
+##     support confidence  lift
+## 21   0.2799     0.8059 1.331
+## 20   0.2595     0.7473 1.250
+## 19   0.2506     0.7216 1.422
+## 16   0.2214     0.7373 1.354
+## 187  0.2087     0.8000 1.321
+## 185  0.1972     0.7561 1.264
+## 168  0.1845     0.7073 1.393
+## 177  0.1768     0.8081 1.334
+## 137  0.1718     0.7714 1.417
+## 139  0.1692     0.7348 1.349
+## 176  0.1603     0.7326 1.225
+## 161  0.1552     0.7093 1.397
+## 482  0.1438     0.8014 1.323
+## 110  0.1399     0.7383 1.356
+## 115  0.1374     0.7248 1.269
+## 121  0.1336     0.8268 1.518
+## 99   0.1336     0.7955 1.461
+## 480  0.1336     0.7447 1.245
+## 450  0.1272     0.7092 1.397
+## 389  0.1247     0.8376 1.538
+</code></pre>
+
+<p>类似的，如果我们只关注物品之间的关联购买行为，则得到如下结果：</p>
+
+<pre><code class="r">item = Rules[!grepl(string, Rules$lhs) &amp; grepl(&quot;(TRUE)|(FALSE)&quot;, Rules$lhs) &amp; 
+    grepl(&quot;(TRUE)|(FALSE)&quot;, Rules$rhs) &amp; !grepl(string, Rules$rhs), ]
+item[1:20, 1:4]
+</code></pre>
+
+<pre><code>##                                                                           rules
+## 356                  {Frozen_foods=FALSE,Bakery_goods=FALSE} =&gt; {Alcohol=FALSE}
+## 357                  {Alcohol=FALSE,Bakery_goods=FALSE} =&gt; {Frozen_foods=FALSE}
+## 332                        {Frozen_foods=FALSE,Snacks=FALSE} =&gt; {Alcohol=FALSE}
+## 343                  {Alcohol=FALSE,Tinned_goods=FALSE} =&gt; {Frozen_foods=FALSE}
+## 319               {Ready_made=FALSE,Frozen_foods=FALSE} =&gt; {Bakery_goods=FALSE}
+## 309                     {Ready_made=TRUE,Alcohol=FALSE} =&gt; {Frozen_foods=FALSE}
+## 308                     {Ready_made=TRUE,Frozen_foods=FALSE} =&gt; {Alcohol=FALSE}
+## 283                   {Frozen_foods=FALSE,Tinned_goods=TRUE} =&gt; {Alcohol=FALSE}
+## 275                     {Ready_made=FALSE,Tinned_goods=TRUE} =&gt; {Alcohol=FALSE}
+## 294                         {Alcohol=FALSE,Snacks=TRUE} =&gt; {Frozen_foods=FALSE}
+## 281                   {Bakery_goods=FALSE,Tinned_goods=TRUE} =&gt; {Alcohol=FALSE}
+## 277                         {Snacks=FALSE,Tinned_goods=TRUE} =&gt; {Alcohol=FALSE}
+## 914     {Frozen_foods=FALSE,Bakery_goods=FALSE,Snacks=FALSE} =&gt; {Alcohol=FALSE}
+## 280              {Bakery_goods=FALSE,Tinned_goods=TRUE} =&gt; {Frozen_foods=FALSE}
+## 915     {Alcohol=FALSE,Bakery_goods=FALSE,Snacks=FALSE} =&gt; {Frozen_foods=FALSE}
+## 300                {Ready_made=TRUE,Bakery_goods=FALSE} =&gt; {Tinned_goods=FALSE}
+## 883 {Ready_made=FALSE,Alcohol=FALSE,Bakery_goods=FALSE} =&gt; {Frozen_foods=FALSE}
+## 884 {Ready_made=FALSE,Frozen_foods=FALSE,Alcohol=FALSE} =&gt; {Bakery_goods=FALSE}
+## 821  {Ready_made=TRUE,Alcohol=FALSE,Tinned_goods=FALSE} =&gt; {Frozen_foods=FALSE}
+## 820  {Ready_made=TRUE,Frozen_foods=FALSE,Tinned_goods=FALSE} =&gt; {Alcohol=FALSE}
+##     support confidence  lift
+## 356  0.2990     0.7655 1.264
+## 357  0.2990     0.7630 1.276
+## 332  0.2494     0.7396 1.221
+## 343  0.2379     0.7362 1.231
+## 319  0.2265     0.7149 1.251
+## 309  0.2125     0.7591 1.269
+## 308  0.2125     0.7557 1.248
+## 283  0.1959     0.7897 1.304
+## 275  0.1870     0.7819 1.291
+## 294  0.1845     0.7214 1.206
+## 281  0.1781     0.7821 1.291
+## 277  0.1743     0.7527 1.243
+## 914  0.1692     0.7472 1.234
+## 280  0.1692     0.7430 1.243
+## 915  0.1692     0.7308 1.222
+## 300  0.1667     0.7043 1.293
+## 883  0.1616     0.7299 1.221
+## 884  0.1616     0.7299 1.278
+## 821  0.1527     0.8276 1.384
+## 820  0.1527     0.8000 1.321
+</code></pre>
+
+<p>如果我们关注人群特征之间的关联性质，可以做以下限制，也可以得到有意思的结果：</p>
+
+<pre><code class="r">pp = Rules[grepl(string, Rules$lhs) &amp; !grepl(&quot;(TRUE)|(FALSE)&quot;, Rules$lhs) &amp; 
+    !grepl(&quot;(TRUE)|(FALSE)&quot;, Rules$rhs) &amp; grepl(string, Rules$rhs), ]
+pp
+</code></pre>
+
+<pre><code>##                                                                rules
+## 122                   {GENDER=Male  ,Age=18 to 30} =&gt; {CHILDREN=No }
+## 104              {GENDER=Male  ,MARITAL=Single   } =&gt; {CHILDREN=No }
+## 98               {GENDER=Male  ,MARITAL=Single   } =&gt; {Age=18 to 30}
+## 393       {GENDER=Male  ,Age=18 to 30,WORKING=Yes} =&gt; {CHILDREN=No }
+## 376 {GENDER=Male  ,Age=18 to 30,MARITAL=Single   } =&gt; {CHILDREN=No }
+## 377 {Age=18 to 30,MARITAL=Single   ,CHILDREN=No } =&gt; {GENDER=Male  }
+## 378 {GENDER=Male  ,MARITAL=Single   ,CHILDREN=No } =&gt; {Age=18 to 30}
+##     support confidence  lift
+## 122  0.1489     0.9213 1.412
+## 104  0.1260     0.8761 1.342
+## 98   0.1081     0.7522 2.505
+## 393  0.1056     0.9121 1.397
+## 376  0.1005     0.9294 1.424
+## 377  0.1005     0.7980 1.728
+## 378  0.1005     0.7980 2.658
+##                                                 lhs              rhs
+## 122                   {GENDER=Male  ,Age=18 to 30}    {CHILDREN=No }
+## 104              {GENDER=Male  ,MARITAL=Single   }    {CHILDREN=No }
+## 98               {GENDER=Male  ,MARITAL=Single   }    {Age=18 to 30}
+## 393       {GENDER=Male  ,Age=18 to 30,WORKING=Yes}    {CHILDREN=No }
+## 376 {GENDER=Male  ,Age=18 to 30,MARITAL=Single   }    {CHILDREN=No }
+## 377  {Age=18 to 30,MARITAL=Single   ,CHILDREN=No }   {GENDER=Male  }
+## 378 {GENDER=Male  ,MARITAL=Single   ,CHILDREN=No }    {Age=18 to 30}
+</code></pre>
+
+<h2>3. 不频繁项集挖掘</h2>
+
+<p>通过itemFreq可以找出不频繁项集，通过调小support的限制可以得到他们对应的规则。</p>
+
+<pre><code class="r">### mining the unfrequency terms
+rules &lt;- apriori(shop_trans, parameter = list(support = 0.01, confidence = 0.6))
+</code></pre>
+
+<pre><code>## 
+## parameter specification:
+##  confidence minval smax arem  aval originalSupport support minlen maxlen
+##         0.6    0.1    1 none FALSE            TRUE    0.01      1     10
+##  target   ext
+##   rules FALSE
+## 
+## algorithmic control:
+##  filter tree heap memopt load sort verbose
+##     0.1 TRUE TRUE  FALSE TRUE    2    TRUE
+## 
+## apriori - find association rules with the apriori algorithm
+## version 4.21 (2004.05.09)        (c) 1996-2004   Christian Borgelt
+## set item appearances ...[0 item(s)] done [0.00s].
+## set transactions ...[32 item(s), 786 transaction(s)] done [0.00s].
+## sorting and recoding items ... [32 item(s)] done [0.00s].
+## creating transaction tree ... done [0.00s].
+## checking subsets of size 1 2 3 4 5 6 7 8 9 10 done [0.04s].
+## writing ... [165938 rule(s)] done [0.05s].
+## creating S4 object  ... done [0.21s].
+</code></pre>
+
+<pre><code class="r">rule = subset(rules, subset = lift &gt; 1.2)
+summary(rule)
+</code></pre>
+
+<pre><code>## set of 127326 rules
+## 
+## rule length distribution (lhs + rhs):sizes
+##     2     3     4     5     6     7     8     9    10 
+##    34  1047  8725 29444 43452 31218 11335  1950   121 
+## 
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##    2.00    5.00    6.00    6.08    7.00   10.00 
+## 
+## summary of quality measures:
+##     support         confidence         lift     
+##  Min.   :0.0102   Min.   :0.600   Min.   :1.20  
+##  1st Qu.:0.0115   1st Qu.:0.714   1st Qu.:1.34  
+##  Median :0.0153   Median :0.800   Median :1.52  
+##  Mean   :0.0203   Mean   :0.806   Mean   :1.66  
+##  3rd Qu.:0.0216   3rd Qu.:0.900   3rd Qu.:1.80  
+##  Max.   :0.3957   Max.   :1.000   Max.   :8.02  
+## 
+## mining info:
+##        data ntransactions support confidence
+##  shop_trans           786    0.01        0.6
+</code></pre>
+
+<pre><code class="r">
+Rules = as(rule, &quot;data.frame&quot;)
+Rules$rules = as.character(Rules$rules)
+rule_spl = do.call(rbind, sapply(Rules$rules, strsplit, &quot;=&gt;&quot;))
+rownames(rule_spl) = NULL
+colnames(rule_spl) = c(&quot;lhs&quot;, &quot;rhs&quot;)
+Rules = data.frame(Rules, rule_spl)
+Rules = Rules[order(Rules$support, Rules$confidence, decreasing = T), ]
+infreq_item = itemFreq[itemFreq &lt; quantile(itemFreq, 0.25)]
+items = sapply(names(infreq_item), function(x) {
+    res = grepl(x, Rules$rhs)
+    return(res)
+})
+</code></pre>
+
+<pre><code class="r"># min_freq=apply(items,1,function(x) { return(min(infreq_item[x])) })
+
+# min_freq[!is.finite(min_freq)]=NA save(min_freq,file=&#39;min_freq.rda&#39;)
+load(&quot;min_freq.rda&quot;)
+Rules[which(!is.na(min_freq))[1:20], ]
+</code></pre>
+
+<pre><code>##                                                                                                    rules
+## 4393                                 {Ready_made=FALSE,Age=Over 60 ,CHILDREN=No } =&gt; {MARITAL=Divorced }
+## 4329                                    {Alcohol=TRUE,GENDER=Male  ,Age=Over 60 } =&gt; {MARITAL=Divorced }
+## 20503             {Ready_made=FALSE,Bakery_goods=FALSE,MARITAL=Divorced ,CHILDREN=No } =&gt; {Age=Over 60 }
+## 4368                                {Ready_made=FALSE,GENDER=Male  ,Age=Over 60 } =&gt; {MARITAL=Divorced }
+## 20464                 {Bakery_goods=FALSE,GENDER=Male  ,Age=Over 60 ,WORKING=Yes} =&gt; {MARITAL=Divorced }
+## 20502             {Ready_made=FALSE,Bakery_goods=FALSE,Age=Over 60 ,CHILDREN=No } =&gt; {MARITAL=Divorced }
+## 4349                               {Frozen_foods=TRUE,GENDER=Male  ,Age=Over 60 } =&gt; {MARITAL=Divorced }
+## 20459                {Bakery_goods=FALSE,GENDER=Male  ,Age=Over 60 ,CHILDREN=No } =&gt; {MARITAL=Divorced }
+## 4341                               {Alcohol=TRUE,Bakery_goods=FALSE,MARITAL=Divorced } =&gt; {Age=Over 60 }
+## 20460                {Bakery_goods=FALSE,GENDER=Male  ,MARITAL=Divorced ,CHILDREN=No } =&gt; {Age=Over 60 }
+## 20510                    {Ready_made=FALSE,Age=Over 60 ,CHILDREN=No ,WORKING=Yes} =&gt; {MARITAL=Divorced }
+## 20422                  {Ready_made=FALSE,GENDER=Male  ,Age=Over 60 ,CHILDREN=No } =&gt; {MARITAL=Divorced }
+## 20247                      {Alcohol=TRUE,GENDER=Male  ,Age=Over 60 ,CHILDREN=No } =&gt; {MARITAL=Divorced }
+## 4373                              {Tinned_goods=FALSE,GENDER=Male  ,Age=Over 60 } =&gt; {MARITAL=Divorced }
+## 62447    {Bakery_goods=FALSE,GENDER=Male  ,Age=Over 60 ,CHILDREN=No ,WORKING=Yes} =&gt; {MARITAL=Divorced }
+## 4333                                 {Ready_made=FALSE,Alcohol=TRUE,Age=Over 60 } =&gt; {MARITAL=Divorced }
+## 20423                  {Ready_made=FALSE,GENDER=Male  ,MARITAL=Divorced ,CHILDREN=No } =&gt; {Age=Over 60 }
+## 62504 {Ready_made=FALSE,Bakery_goods=FALSE,MARITAL=Divorced ,CHILDREN=No ,WORKING=Yes} =&gt; {Age=Over 60 }
+## 20417            {Ready_made=FALSE,Bakery_goods=FALSE,GENDER=Male  ,Age=Over 60 } =&gt; {MARITAL=Divorced }
+## 62448    {Bakery_goods=FALSE,GENDER=Male  ,MARITAL=Divorced ,CHILDREN=No ,WORKING=Yes} =&gt; {Age=Over 60 }
+##       support confidence  lift
+## 4393  0.02417     0.6129 4.916
+## 4329  0.02163     0.8095 6.493
+## 20503 0.02163     0.7083 6.118
+## 4368  0.02163     0.6296 5.050
+## 20464 0.02163     0.6296 5.050
+## 20502 0.02163     0.6296 5.050
+## 4349  0.02036     0.6957 5.579
+## 20459 0.02036     0.6957 5.579
+## 4341  0.02036     0.6667 5.758
+## 20460 0.02036     0.6400 5.528
+## 20510 0.02036     0.6154 4.936
+## 20422 0.01908     0.9375 7.519
+## 20247 0.01908     0.7895 6.332
+## 4373  0.01908     0.7143 5.729
+## 62447 0.01908     0.7143 5.729
+## 4333  0.01908     0.6818 5.468
+## 20423 0.01908     0.6818 5.889
+## 62504 0.01908     0.6818 5.889
+## 20417 0.01908     0.6250 5.013
+## 62448 0.01908     0.6250 5.398
+##                                                                                     lhs
+## 4393                                      {Ready_made=FALSE,Age=Over 60 ,CHILDREN=No } 
+## 4329                                         {Alcohol=TRUE,GENDER=Male  ,Age=Over 60 } 
+## 20503             {Ready_made=FALSE,Bakery_goods=FALSE,MARITAL=Divorced ,CHILDREN=No } 
+## 4368                                     {Ready_made=FALSE,GENDER=Male  ,Age=Over 60 } 
+## 20464                      {Bakery_goods=FALSE,GENDER=Male  ,Age=Over 60 ,WORKING=Yes} 
+## 20502                  {Ready_made=FALSE,Bakery_goods=FALSE,Age=Over 60 ,CHILDREN=No } 
+## 4349                                    {Frozen_foods=TRUE,GENDER=Male  ,Age=Over 60 } 
+## 20459                     {Bakery_goods=FALSE,GENDER=Male  ,Age=Over 60 ,CHILDREN=No } 
+## 4341                               {Alcohol=TRUE,Bakery_goods=FALSE,MARITAL=Divorced } 
+## 20460                {Bakery_goods=FALSE,GENDER=Male  ,MARITAL=Divorced ,CHILDREN=No } 
+## 20510                         {Ready_made=FALSE,Age=Over 60 ,CHILDREN=No ,WORKING=Yes} 
+## 20422                       {Ready_made=FALSE,GENDER=Male  ,Age=Over 60 ,CHILDREN=No } 
+## 20247                           {Alcohol=TRUE,GENDER=Male  ,Age=Over 60 ,CHILDREN=No } 
+## 4373                                   {Tinned_goods=FALSE,GENDER=Male  ,Age=Over 60 } 
+## 62447         {Bakery_goods=FALSE,GENDER=Male  ,Age=Over 60 ,CHILDREN=No ,WORKING=Yes} 
+## 4333                                      {Ready_made=FALSE,Alcohol=TRUE,Age=Over 60 } 
+## 20423                  {Ready_made=FALSE,GENDER=Male  ,MARITAL=Divorced ,CHILDREN=No } 
+## 62504 {Ready_made=FALSE,Bakery_goods=FALSE,MARITAL=Divorced ,CHILDREN=No ,WORKING=Yes} 
+## 20417                 {Ready_made=FALSE,Bakery_goods=FALSE,GENDER=Male  ,Age=Over 60 } 
+## 62448    {Bakery_goods=FALSE,GENDER=Male  ,MARITAL=Divorced ,CHILDREN=No ,WORKING=Yes} 
+##                        rhs
+## 4393   {MARITAL=Divorced }
+## 4329   {MARITAL=Divorced }
+## 20503       {Age=Over 60 }
+## 4368   {MARITAL=Divorced }
+## 20464  {MARITAL=Divorced }
+## 20502  {MARITAL=Divorced }
+## 4349   {MARITAL=Divorced }
+## 20459  {MARITAL=Divorced }
+## 4341        {Age=Over 60 }
+## 20460       {Age=Over 60 }
+## 20510  {MARITAL=Divorced }
+## 20422  {MARITAL=Divorced }
+## 20247  {MARITAL=Divorced }
+## 4373   {MARITAL=Divorced }
+## 62447  {MARITAL=Divorced }
+## 4333   {MARITAL=Divorced }
+## 20423       {Age=Over 60 }
+## 62504       {Age=Over 60 }
+## 20417  {MARITAL=Divorced }
+## 62448       {Age=Over 60 }
+</code></pre>
+
+<p>如果限制规则的右边必须为物品的集合，则得到如下规则。</p>
+
+<pre><code class="r">#
+# infreq_item=itemFreq[itemFreq&lt;quantile(itemFreq,0.25)&amp;grepl(&#39;(TRUE|FALSE)&#39;,names(itemFreq),perl=T)]
+# items=sapply(names(infreq_item),function(x) { res=grepl(x,Rules$rhs)
+# return(res) }) min_freq_item=apply(items,1,function(x) {
+# return(min(infreq_item[x])) })
+# min_freq_item[!is.finite(min_freq_item)]=NA
+save(min_freq_item, file = &quot;min_freq_item.rda&quot;)
+</code></pre>
+
+<pre><code>## Error: object &#39;min_freq_item&#39; not found
+</code></pre>
+
+<pre><code class="r">load(&quot;min_freq_item.rda&quot;)
+
+Rules[which(!is.na(min_freq_item)), ]
+</code></pre>
+
+<pre><code>##                                                                                                                                        rules
+## 58185                                {Milk=TRUE,Bakery_goods=TRUE,Toiletries=TRUE,Tinned_goods=TRUE,CHILDREN=No } =&gt; {Fresh_Vegetables=TRUE}
+## 114124             {Frozen_foods=TRUE,Milk=TRUE,Bakery_goods=TRUE,Toiletries=TRUE,Tinned_goods=TRUE,CHILDREN=No } =&gt; {Fresh_Vegetables=TRUE}
+## 114145                   {Milk=TRUE,Bakery_goods=TRUE,Toiletries=TRUE,Tinned_goods=TRUE,CHILDREN=No ,WORKING=Yes} =&gt; {Fresh_Vegetables=TRUE}
+## 151103 {Frozen_foods=TRUE,Milk=TRUE,Bakery_goods=TRUE,Toiletries=TRUE,Tinned_goods=TRUE,CHILDREN=No ,WORKING=Yes} =&gt; {Fresh_Vegetables=TRUE}
+##        support confidence  lift
+## 58185  0.01018     0.6154 7.441
+## 114124 0.01018     0.6154 7.441
+## 114145 0.01018     0.6154 7.441
+## 151103 0.01018     0.6154 7.441
+##                                                                                                                lhs
+## 58185                                {Milk=TRUE,Bakery_goods=TRUE,Toiletries=TRUE,Tinned_goods=TRUE,CHILDREN=No } 
+## 114124             {Frozen_foods=TRUE,Milk=TRUE,Bakery_goods=TRUE,Toiletries=TRUE,Tinned_goods=TRUE,CHILDREN=No } 
+## 114145                   {Milk=TRUE,Bakery_goods=TRUE,Toiletries=TRUE,Tinned_goods=TRUE,CHILDREN=No ,WORKING=Yes} 
+## 151103 {Frozen_foods=TRUE,Milk=TRUE,Bakery_goods=TRUE,Toiletries=TRUE,Tinned_goods=TRUE,CHILDREN=No ,WORKING=Yes} 
+##                             rhs
+## 58185   {Fresh_Vegetables=TRUE}
+## 114124  {Fresh_Vegetables=TRUE}
+## 114145  {Fresh_Vegetables=TRUE}
+## 151103  {Fresh_Vegetables=TRUE}
+</code></pre>
+
+</body>
+
+</html>
+

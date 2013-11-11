@@ -1,0 +1,179 @@
+Shopping数据关联规则挖掘
+========================================================
+1.  数据预处理
+---------------------------------------
+  导入shopping数据，将购买数据转为逻辑变量，查看变量性质。
+  
+  变量分为两类：家居用品（主要是食物）以及人口统计特征（如性别、年龄、婚姻状况等）
+
+```{r}
+load("shopping.rda")
+for (i in 1:10)
+{
+  shopping[,i]=as.logical(shopping[,i])
+}
+summary(shopping)
+```
+
+可以看到数据无缺失值，在食物类数据中，有的食物种类的购买量与非购买量是比较均匀的，而有的食物如新鲜蔬菜、鲜肉等购买行为较少，在这种情形下我们实际关注的是人们购买稀有食品的行为；因此，当不购买某种食品的比例过高时（设为0.2），我们忽略这种行为。
+
+```{r}
+shopping[,1:10]=apply(shopping[,1:10],2,function(x)
+  {
+  x=as.logical(x)
+  y=table(x)/length(x)
+  if (y[2]<=0.2)
+    x[!x]=NA
+  return(x)
+})
+summary(shopping)
+```
+
+2.  关联规则挖掘
+------------------------------------------
+用R中的arules包挖掘关联规则。
+
+将数据转化成transaction格式。
+
+```{r tidy=T,warning=FALSE,message=FALSE}
+library(arules)
+shop_trans=as(shopping, "transactions")
+summary(shop_trans)
+```
+
+查看item的频率
+
+```{r fig.width=10, fig.height=6}
+itemFrequencyPlot(shop_trans, support = 0.2, cex.names = 0.8)
+```
+
+用apriori算法挖掘关联规则。查看item的频率分布，可知item freqency的25分位数为0.1838，设置最小support为0.1，confidence为0.7,lift值为1.2
+
+```{r tidy=T,warning=FALSE,message=FALSE}
+itemFreq=itemFrequency(shop_trans, type = "relative")
+quantile(itemFreq)
+#apriori
+rules <- apriori(shop_trans, parameter = list(support = 0.1,confidence = 0.7))
+rule_lif=subset(rules, subset = lift > 1.2)
+summary(rule_lif)
+```
+
+分别按照support和confidence排序，查看前20的规则。
+```{r}
+inspect(head(sort(rule_lif, by = "support"), n = 20))
+inspect(head(sort(rule_lif, by = "confidence"), n = 20))
+```
+
+2.  进一步挖掘
+------------------------------------------
+可以看到得到的规则鱼龙混杂，如果要进行有方向的关联规则挖掘，则应该将数据转化为dataframe形式，通过正则表达式做进行进一步处理。对于rules按照support confidence降序排列。
+```{r}
+### convert to dataframe
+Rules=as(rule_lif,"data.frame")
+Rules$rules=as.character(Rules$rules)
+rule_spl=do.call(rbind,sapply(Rules$rules,strsplit,"=>"))
+rownames(rule_spl)=NULL
+colnames(rule_spl)=c("lhs","rhs")
+Rules=data.frame(Rules,rule_spl)
+Rules=Rules[order(Rules$support,Rules$confidence,decreasing=T),]
+```
+
+### (1) 购买行为
+当要求right hand rules必须出现日常用品项时，我们可以把视角局限到人们的购买行为。
+
+```{r}
+supervise=Rules[grepl("(TRUE)|(FALSE)",Rules$rhs,perl=T),]
+supervise[1:20,1:4]
+```
+进一步的，我们可以分类查看不同类别的商品关联的购买行为。
+```{r}
+cate_supvise=lapply(colnames(shopping[1:10]),function(x)
+  {
+  y=Rules[grepl(x,Rules$rhs,perl=T),1:4]
+  cat(x,"\n")
+  show(y[1:min(nrow(y),10),])
+  cat("\n")
+  return(y)
+})
+```
+
+如果我们只关注相关人群特征的购买行为，则可以对规则做限制，使人群特征只出现在左边，而购买行为只出现在右边。
+```{r}
+string=paste("(",paste(colnames(shopping[11:15]),collapse=")|("),")",sep="")
+people=Rules[grepl(string,Rules$lhs)
+             &!grepl("(TRUE)|(FALSE)",Rules$lhs)
+             &grepl("(TRUE)|(FALSE)",Rules$rhs)
+             &!grepl(string,Rules$rhs),]
+people[1:20,1:4]
+```
+类似的，如果我们只关注物品之间的关联购买行为，则得到如下结果：
+```{r}
+item=Rules[!grepl(string,Rules$lhs)
+             &grepl("(TRUE)|(FALSE)",Rules$lhs)
+             &grepl("(TRUE)|(FALSE)",Rules$rhs)
+             &!grepl(string,Rules$rhs),]
+item[1:20,1:4]
+```
+如果我们关注人群特征之间的关联性质，可以做以下限制，也可以得到有意思的结果：
+```{r}
+pp=Rules[grepl(string,Rules$lhs)
+           &!grepl("(TRUE)|(FALSE)",Rules$lhs)
+           &!grepl("(TRUE)|(FALSE)",Rules$rhs)
+           &grepl(string,Rules$rhs),]
+pp
+```
+
+3. 不频繁项集挖掘
+-----------------------------
+通过itemFreq可以找出不频繁项集，通过调小support的限制可以得到他们对应的规则。
+```{r warning=F}
+### mining the unfrequency terms
+rules <- apriori(shop_trans, parameter = list(support = 0.01,confidence = 0.6))
+rule=subset(rules, subset = lift > 1.2 )
+summary(rule)
+
+Rules=as(rule,"data.frame")
+Rules$rules=as.character(Rules$rules)
+rule_spl=do.call(rbind,sapply(Rules$rules,strsplit,"=>"))
+rownames(rule_spl)=NULL
+colnames(rule_spl)=c("lhs","rhs")
+Rules=data.frame(Rules,rule_spl)
+Rules=Rules[order(Rules$support,Rules$confidence,decreasing=T),]
+infreq_item=itemFreq[itemFreq<quantile(itemFreq,0.25)]
+items=sapply(names(infreq_item),function(x)
+{
+  res=grepl(x,Rules$rhs)
+  return(res)
+})
+```
+
+```{r}
+#min_freq=apply(items,1,function(x) {
+#  return(min(infreq_item[x]))
+#})
+
+#min_freq[!is.finite(min_freq)]=NA
+#save(min_freq,file="min_freq.rda")
+load("min_freq.rda")
+Rules[which(!is.na(min_freq))[1:20],]
+```
+如果限制规则的右边必须为物品的集合，则得到如下规则。
+```{r}
+#infreq_item=itemFreq[itemFreq<quantile(itemFreq,0.25)&grepl("(TRUE|FALSE)",names(itemFreq),perl=T)]
+#items=sapply(names(infreq_item),function(x)
+#{
+#  res=grepl(x,Rules$rhs)
+#  return(res)
+#})
+#min_freq_item=apply(items,1,function(x) {
+#  return(min(infreq_item[x]))
+#})
+#min_freq_item[!is.finite(min_freq_item)]=NA
+save(min_freq_item,file="min_freq_item.rda")
+load("min_freq_item.rda")
+
+Rules[which(!is.na(min_freq_item)),]
+```
+
+
+
