@@ -8,6 +8,30 @@ hmap.func <- function(a, f, xlab, ylab)
 
 # define class signal
 f <- function(x, y) 1 / (1 + 2^(x^3+ y+x*y))
+
+predict.SMO<-function(x,y,alpha,data,Y,b,ker=Gauss.ker)
+{
+  X=c(x,y,0,0)
+  kk=apply(data,1,ker,z=X)
+  res=sum(Y*alpha*kk)+b
+  return(res)
+}
+
+predict.SMO(x=a[1],y=a[3],alpha=res$Alpha,data=d[1:100,1:4],Y=d$y[1:100],b=res$B,ker=Gauss.Ker)
+
+aa=sapply(a,function(x)
+  {
+  rr=sapply(a,predict.SMO,y=x,alpha=res$Alpha,
+         data=d[1:100,1:4],Y=d$y[1:100],b=res$B,ker=Gauss.Ker)
+  return(rr)
+})
+
+image.plot(a, a, aa, zlim = c(min(aa), max(aa)))
+
+bb=outer(a, a, f)
+logit_aa=exp(aa)/(1+exp(aa))
+image.plot(a, a, bb, zlim = c(min(bb), max(bb)))
+image.plot(a, a, logit_aa, zlim = c(min(logit_aa), max(logit_aa)))
 #g <- function(x, y) 1 / (1 + 2^(cos(x^3)-x*y+sin(y)))
 
 # create training data
@@ -97,13 +121,16 @@ first.alpha<-function(y,alpha,eps,C,gg,is_support) ## C is the cost parameter
 second.alpha<-function(E,alpha1_ind)
 {
   inds=(1:length(E))[-alpha1_ind]
+  ee=E[-alpha1_ind]
   if (E[alpha1_ind]>0) 
   {
-    alpha2_ind=inds[which.min(E[-alpha1_ind])[1]]
+    mm=min(ee)
+    alpha2_ind=inds[sample(which(ee==mm),1)]
   }
   else
   {
-    alpha2_ind=inds[which.max(E[-alpha1_ind])[1]]
+    mm=max(ee)
+    alpha2_ind=inds[sample(which(ee==mm),1)]
   }
   return(alpha2_ind)
 }
@@ -172,30 +199,13 @@ g<-function(alpha,y,ker_mat,col,b) ### col is the x colind
   res=sum(alpha*y*ker_mat[,col])+b
   return(res)
 }
-update.E<-function(E,is_support,y,alpha,ker_mat,b)
-{
-  if(all(!is_support))
-    return(E)
-  support_ind=which(is_support)
-  
-#  yy=y
-  y=y[is_support]
-  alpha=alpha[is_support]
-  ker_mat=ker_mat[,which(is_support)]
-  
-  gg=sapply(1:length(alpha),g,alpha=alpha,y=y,
-            ker_mat=ker_mat,b=b)
-  
-  ee=gg-y
-  E[is_support]=ee
-  return(E)
-}
+
 
 update.E<-function(E,is_support,y,alpha,ker_mat,b)
 {
   gg=sapply(1:length(alpha),g,alpha=alpha,y=y,
             ker_mat=ker_mat,b=b)
-  E[is_support]=gg-y
+  E=gg-y
   return(E)
 }
 
@@ -231,7 +241,7 @@ SMO<-function(data,y,C,eps=10^(-4)) ###data is the features; y is the respond va
     is_kkt=is.KKT(y,alpha,eps,C,gg)
     cat("un kkt",sum(!is_kkt),"\n")
   }
-  return(alpha)
+  return(list(Alpha=alpha,B=b,Fit=gg,Ker_mat=ker_mat))
 }
 res=SMO(data=d[1:100,1:4],y=d$y[1:100],C=0.5,eps=10^(-4))
 
