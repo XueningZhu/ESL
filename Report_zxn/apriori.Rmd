@@ -7,6 +7,7 @@ Shopping数据关联规则挖掘
   变量分为两类：家居用品（主要是食物）以及人口统计特征（如性别、年龄、婚姻状况等）
 
 ```{r}
+setwd("F:/商业数据挖掘_光华/homework/2")
 load("shopping.rda")
 for (i in 1:10)
 {
@@ -154,6 +155,7 @@ items=sapply(names(infreq_item),function(x)
 
 #min_freq[!is.finite(min_freq)]=NA
 #save(min_freq,file="min_freq.rda")
+setwd("F:/商业数据挖掘_光华/homework/2")
 load("min_freq.rda")
 Rules[which(!is.na(min_freq))[1:20],]
 ```
@@ -169,7 +171,8 @@ Rules[which(!is.na(min_freq))[1:20],]
 #  return(min(infreq_item[x]))
 #})
 #min_freq_item[!is.finite(min_freq_item)]=NA
-save(min_freq_item,file="min_freq_item.rda")
+#save(min_freq_item,file="min_freq_item.rda")
+setwd("F:/商业数据挖掘_光华/homework/2")
 load("min_freq_item.rda")
 
 Rules[which(!is.na(min_freq_item)),]

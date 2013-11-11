@@ -9,7 +9,7 @@
 
 <style type="text/css">
 body, td {
-   font-family: sans-serif;
+   font-family: 'Microsoft YaHei';
    background-color: white;
    font-size: 14px;
    margin: 8px;
@@ -21,26 +21,32 @@ tt, code, pre {
 
 h1 { 
    font-size:2.2em; 
+   font-family: 'Microsoft YaHei';
 }
 
 h2 { 
    font-size:1.8em; 
+   font-family: 'Microsoft YaHei';
 }
 
 h3 { 
    font-size:1.4em; 
+   font-family: 'Microsoft YaHei';
 }
 
 h4 { 
    font-size:1.0em; 
+   font-family: 'Microsoft YaHei';
 }
 
 h5 { 
    font-size:0.9em; 
+   font-family: 'Microsoft YaHei';
 }
 
 h6 { 
    font-size:0.8em; 
+   font-family: 'Microsoft YaHei';
 }
 
 a:visited {
@@ -52,6 +58,7 @@ pre {
    max-width: 95%;
    border: 1px solid #ccc;
    white-space: pre-wrap;
+   font-family: 'Microsoft YaHei';
 }
 
 pre code {
@@ -92,6 +99,8 @@ hr {
    body { 
       font-size:14pt; 
       max-width:100%; 
+	  line-height: 120%;
+	  font-family: 'Microsoft YaHei';
    }
        
    a, a:visited { 
@@ -126,6 +135,7 @@ hr {
 
    p, h2, h3 { 
       orphans: 3; widows: 3; 
+	  font-family: 'Microsoft YaHei';
    }
 
    h2, h3 { 
@@ -187,7 +197,8 @@ hljs.initHighlightingOnLoad();
 
 <p>变量分为两类：家居用品（主要是食物）以及人口统计特征（如性别、年龄、婚姻状况等）</p>
 
-<pre><code class="r">load(&quot;shopping.rda&quot;)
+<pre><code class="r">setwd(&quot;F:/商业数据挖掘_光华/homework/2&quot;)
+load(&quot;shopping.rda&quot;)
 for (i in 1:10) {
     shopping[, i] = as.logical(shopping[, i])
 }
@@ -877,9 +888,9 @@ rules &lt;- apriori(shop_trans, parameter = list(support = 0.01, confidence = 0.
 ## set transactions ...[32 item(s), 786 transaction(s)] done [0.00s].
 ## sorting and recoding items ... [32 item(s)] done [0.00s].
 ## creating transaction tree ... done [0.00s].
-## checking subsets of size 1 2 3 4 5 6 7 8 9 10 done [0.04s].
-## writing ... [165938 rule(s)] done [0.05s].
-## creating S4 object  ... done [0.21s].
+## checking subsets of size 1 2 3 4 5 6 7 8 9 10 done [0.03s].
+## writing ... [165938 rule(s)] done [0.04s].
+## creating S4 object  ... done [0.17s].
 </code></pre>
 
 <pre><code class="r">rule = subset(rules, subset = lift &gt; 1.2)
@@ -927,6 +938,7 @@ items = sapply(names(infreq_item), function(x) {
 <pre><code class="r"># min_freq=apply(items,1,function(x) { return(min(infreq_item[x])) })
 
 # min_freq[!is.finite(min_freq)]=NA save(min_freq,file=&#39;min_freq.rda&#39;)
+setwd(&quot;F:/商业数据挖掘_光华/homework/2&quot;)
 load(&quot;min_freq.rda&quot;)
 Rules[which(!is.na(min_freq))[1:20], ]
 </code></pre>
@@ -1025,13 +1037,9 @@ Rules[which(!is.na(min_freq))[1:20], ]
 # return(res) }) min_freq_item=apply(items,1,function(x) {
 # return(min(infreq_item[x])) })
 # min_freq_item[!is.finite(min_freq_item)]=NA
-save(min_freq_item, file = &quot;min_freq_item.rda&quot;)
-</code></pre>
-
-<pre><code>## Error: object &#39;min_freq_item&#39; not found
-</code></pre>
-
-<pre><code class="r">load(&quot;min_freq_item.rda&quot;)
+# save(min_freq_item,file=&#39;min_freq_item.rda&#39;)
+setwd(&quot;F:/商业数据挖掘_光华/homework/2&quot;)
+load(&quot;min_freq_item.rda&quot;)
 
 Rules[which(!is.na(min_freq_item)), ]
 </code></pre>
