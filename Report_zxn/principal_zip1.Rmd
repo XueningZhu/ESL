@@ -12,17 +12,17 @@ First, we convert the data format to rda in R with the package 'sas7bdat' and sa
 Then we can see the details of the description of the data set.
 
 
-```{r table, results='asis'}
+```{r}
 setwd("F:/商业数据挖掘_光华/homework/2")
 
 #library(sas7bdat)
 ############ read data files
 #zip1=read.sas7bdat("zipdemo1.sas7bdat")
 #save(zip1,file="zip1.rda")
-library(xtable)
+#library(xtable)
 ##### load the data files
 load("zip1.rda")
-print(xtable(head(summary(zip1)[,1:5])), type='html') 
+summary(zip1)
 sum(!complete.cases(zip1))
 ```
 
@@ -34,6 +34,7 @@ Some NAs are included in some variables. So we simply conduct the multiple imput
 #comp_zip1 = mi.data.frame(zip1_com,m=1) 
 #zip1_comp = cbind(zip1[,1],comp_zip1)
 #save(zip1_comp,file="zip1_comp.rda")
+setwd("F:/商业数据挖掘_光华/homework/2")
 load("zip1_comp.rda")
 summary(zip1_comp)
 ```
@@ -73,7 +74,8 @@ Other components can also be analyzed in this way.
 To summary, the variables can be clustered into aspects about wealth, salary structures, social positions, human races structures, age structures etc.
 
 ```{r}
-loadings(zip_prin)
+print(zip_prin$loadings[,1:7],digit=2)
+#loadings(zip_prin)
 ```
 
 ### Factor Analysis
@@ -84,7 +86,7 @@ Besides, we use the varimax principle to conduct the rotation.
 #### Factor Analysis
 dd_std=scale(dd)
 zip_fac=factanal(dd_std,factor=10,rotation="varimax",n.obs=nrow(dd),control=list(trace=T))
-zip_fac
+print(zip_fac$loadings[,1:7],digits=2)
 ```
 
 #### Several ways to decide Number of Factors
@@ -159,6 +161,7 @@ The fifth factor is highest loaded on PRCUN18, PRCTHRE and PRCHHFM. They have a 
 We use the package MASS to do the multidimensional scaling with data zip2. For details, we use 1-correlation as the distance measure.
 
 ```{r warning=FALSE,message=F, fig.width=13, fig.height=7}
+setwd("F:/商业数据挖掘_光华/homework/2")
 library("MASS")
 library(ggplot2)
 load("zip2.rda")

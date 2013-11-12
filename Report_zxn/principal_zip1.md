@@ -25,7 +25,7 @@ print(xtable(head(summary(zip1)[, 1:5])), type = "html")
 ```
 
 <!-- html table generated in R 2.15.2 by xtable 1.7-1 package -->
-<!-- Mon Nov 11 11:42:13 2013 -->
+<!-- Tue Nov 12 22:01:01 2013 -->
 <TABLE border=1>
 <TR> <TH>  </TH> <TH>    ZIPCODE </TH> <TH>    DMAWLTHT </TH> <TH>    INCMINDX </TH> <TH>    WEALTHRT </TH> <TH>    PRCWHTE </TH>  </TR>
   <TR> <TD align="right"> 1 </TD> <TD> Min.   : 1001   </TD> <TD> Min.   :0.00   </TD> <TD> Min.   :  3.0   </TD> <TD> Min.   :0.00   </TD> <TD> Min.   :  0.0   </TD> </TR>
@@ -163,7 +163,7 @@ zip_fac = factanal(dd_std, factor = 10, rotation = "varimax", n.obs = nrow(dd),
 ```
 
 ```r
-zip_fac
+print(zip_fac$loadings[, 1:8], digits = 3)
 ```
 
 ```

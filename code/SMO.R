@@ -9,39 +9,15 @@ hmap.func <- function(a, f, xlab, ylab)
 # define class signal
 f <- function(x, y) 1 / (1 + 2^(x^3+ y+x*y))
 
-predict.SMO<-function(x,y,alpha,data,Y,b,ker=Gauss.ker)
-{
-  X=c(x,y,0,0)
-  kk=apply(data,1,ker,z=X)
-  res=sum(Y*alpha*kk)+b
-  return(res)
-}
-
-predict.SMO(x=a[1],y=a[3],alpha=res$Alpha,data=d[1:100,1:4],Y=d$y[1:100],b=res$B,ker=Gauss.Ker)
-
-aa=sapply(a,function(x)
-  {
-  rr=sapply(a,predict.SMO,y=x,alpha=res$Alpha,
-         data=d[1:100,1:4],Y=d$y[1:100],b=res$B,ker=Gauss.Ker)
-  return(rr)
-})
-
-image.plot(a, a, aa, zlim = c(min(aa), max(aa)))
-
-bb=outer(a, a, f)
-logit_aa=exp(aa)/(1+exp(aa))
-image.plot(a, a, bb, zlim = c(min(bb), max(bb)))
-image.plot(a, a, logit_aa, zlim = c(min(logit_aa), max(logit_aa)))
-#g <- function(x, y) 1 / (1 + 2^(cos(x^3)-x*y+sin(y)))
-
 # create training data
-d <- data.frame(x1 = rnorm(1000), x2 = rnorm(1000)
-                ,x3 = rnorm(1000), x4 = rnorm(1000))
-d$y = with(d, ifelse(runif(1000) < f(x1, x2), 1, -1))
+d <- data.frame(x1 = rnorm(200), x2 = rnorm(200)
+                ,x3 = rnorm(200), x4 = rnorm(200))
+d$y = with(d, ifelse(runif(200) < f(x1, x2), 1, -1))
 
 # plot signal (left hand plot below)
-a = seq(-2, 2, len = 100)
-hmap.func(a, f, "x1", "x2")
+
+hmap.func(seq(-2, 2, len = 50), f, "x1", "x2")
+
 
 ####### the svm classifier
 Gauss.Ker<-function(x,z,sigma=1) ### x z is vectors
@@ -58,8 +34,7 @@ Ker.mat<-function(Ker,data)
 #  rr=do.call(cbind,res)
   return(res)
 }
-
-#aa=Ker.mat(Gauss.Ker,data=d[,1:4])
+tt=Ker.mat(Gauss.Ker,data=d[,1:4])
 
 
 is.support<-function(alpha,C,eps)
@@ -67,7 +42,7 @@ is.support<-function(alpha,C,eps)
   is_support=sapply(alpha,function(x) {
     return(x>eps&x<C-eps)
   })
-  return(is_support)
+  return(which(is_support))
 }
 is.KKT<-function(y,alpha,eps,C,gg)
 {
@@ -76,46 +51,20 @@ is.KKT<-function(y,alpha,eps,C,gg)
   if (any(-eps>alpha|alpha>C+eps)) return(F)
   yg=y*gg
   
+  kkt_stats=rep(0,length(alpha))
   is_KKT=sapply(1:length(alpha),function(i) {
-    if (abs(alpha[i])<=eps&yg[i]>=1) return(T)
-    if (alpha[i]>0&alpha[i]<C&abs(yg[i]-1)<eps) return(T)
-    if (abs(alpha[i]-C)<eps&yg[i]<=1) return(T)
-    return(F)
-  })
-  return(is_KKT)
-}
-
-first.alpha<-function(y,alpha,eps,C,gg,is_support) ## C is the cost parameter
-{
-  yg=y*gg
-  
-  if(any(is_support)) 
-  {
-    aa=alpha[is_support]
-    ygs=yg[is_support]
-    is_KKT=sapply(1:length(aa),function(i) {
-      #   if (alpha[i]==0&yg[i]>=1) return(T)
-      if (aa[i]>0&aa[i]<C&abs(ygs[i]-1)<eps) return(T)
-      return(F)
-      #  if (abs(alpha[i]-C)<eps&yg[i]<=1) return(T)
-    })
-    if (!all(is_KKT))
-    {
-      return(sample(which(is_support)[!is_KKT],1))
-    }
-  }
-  
-  inds=!is_support
-  aa=alpha[inds]
-  isyg=yg[inds]
-  
-  is_KKT=sapply(1:length(aa),function(i) {
-    if (abs(aa[i])<=eps&isyg[i]>=1) return(T)
-    #  if (alpha[i]>0&alpha[i]<C&abs(yg[i]-1)<eps) return(T)
-    if (abs(aa[i]-C)<eps&isyg[i]<=1) return(T)
-    return(F)
-  })
-  return(sample(which(inds)[!is_KKT],1))
+      if (abs(alpha[i])<=eps) { if(yg[i]>=1) return(c(T,kkt_stats[i])); kkt_stats[i]=1}
+      if (alpha[i]>eps&alpha[i]<C-eps) {if(abs(yg[i]-1)<eps) return(c(T,kkt_stats[i])); kkt_stats[i]=2}
+      if (abs(alpha[i]-C)<eps) {if(yg[i]<=1) return(c(T,kkt_stats[i])); kkt_stats[i]=3}
+      return(c(F,kkt_stats[i]))
+ #  if (abs(alpha[i])<=eps&yg[i]>=1) { return(T)}
+ #  if (alpha[i]>0&alpha[i]<C&abs(yg[i]-1)<eps) return(T)
+ #  if (abs(alpha[i]-C)<eps&yg[i]<=1) return(T)
+ #   return(F)
+      })
+  cat(names(table(is_KKT[2,])),"||| kkt_stats:",table(is_KKT[2,]),"\n")
+  cat("un kkt",sum(!is_KKT[1,]),"\n")
+  return(is_KKT[1,])
 }
 
 second.alpha<-function(E,alpha1_ind)
@@ -135,35 +84,80 @@ second.alpha<-function(E,alpha1_ind)
   return(alpha2_ind)
 }
 
-Update.alphas<-function(alpha1_ind,alpha2_ind,y,alpha,C,E,ker_mat)
+Update<-function(y,alpha,C,E,ker_mat,eps,b)
 {
-  yy=y[c(alpha1_ind,alpha2_ind)]
-  ee=E[c(alpha1_ind,alpha2_ind)]
-  if (yy[1]!=yy[2])
-  {
-    L=max(0,alpha[alpha2_ind]-alpha[alpha1_ind])
-    H=min(C,C+alpha[alpha2_ind]-alpha[alpha1_ind])
-  }
-  else
-  {
-    L=max(0,alpha[alpha2_ind]+alpha[alpha1_ind]-C)
-    H=min(C,alpha[alpha2_ind]+alpha[alpha1_ind])
-  }
-  kk=ker_mat[alpha1_ind,alpha1_ind]+ker_mat[alpha2_ind,alpha2_ind]-
-    2*ker_mat[alpha1_ind,alpha2_ind]
-  a2=alpha[alpha2_ind]+yy[2]*(ee[1]-ee[2])/kk
+#  flag=T
+  alpha_changed=1
+  examineAll=T
   
-  alpha2=a2
-  if (a2>H)
+  while(examineAll|alpha_changed>0)
   {
-    alpha2=H
+    if (examineAll)
+    {
+      alpha1_inds=1:length(alpha)
+    }
+    else
+    {
+      alpha1_inds=is.support(alpha,C,eps)
+    }
+    alpha_changed=0
+    ######################################
+    for (i in 1:length(alpha1_inds))
+    {
+      alpha1_ind=alpha1_inds[i]
+      alpha2_ind=second.alpha(E,alpha1_ind)
+      yy=y[c(alpha1_ind,alpha2_ind)]
+      ee=E[c(alpha1_ind,alpha2_ind)]
+      if (yy[1]!=yy[2])
+      {
+        L=max(0,alpha[alpha2_ind]-alpha[alpha1_ind])
+        H=min(C,C+alpha[alpha2_ind]-alpha[alpha1_ind])
+      }
+      else
+      {
+        L=max(0,alpha[alpha2_ind]+alpha[alpha1_ind]-C)
+        H=min(C,alpha[alpha2_ind]+alpha[alpha1_ind])
+      }
+      kk=ker_mat[alpha1_ind,alpha1_ind]+ker_mat[alpha2_ind,alpha2_ind]-
+        2*ker_mat[alpha1_ind,alpha2_ind]
+      if (abs(ee[1]-ee[2])<eps|abs(L-H)<eps)
+      {
+        next
+      }
+      a2=alpha[alpha2_ind]+yy[2]*(ee[1]-ee[2])/kk
+      alpha2=a2
+      if (a2>H)
+      {
+        alpha2=H
+      }
+      if (a2<L)
+      {
+        alpha2=L
+      }
+      alpha1=alpha[alpha1_ind]+yy[1]*yy[2]*(alpha[alpha2_ind]-alpha2)
+      
+      alpha_new=c(alpha1,alpha2)
+      b=update.b(E,y,b,ker_mat,alpha1_ind,alpha2_ind,
+                 alpha_old=alpha[c(alpha1_ind,alpha2_ind)],alpha_new,eps,C)
+      
+      alpha_old=alpha
+      alpha[c(alpha1_ind,alpha2_ind)]=alpha_new
+      gg=sapply(1:length(alpha),g,alpha=alpha,y=y,
+                ker_mat=ker_mat,b=b)
+      E=update.E(E,y,alpha,ker_mat,b)
+      cat("delta alpha:",sqrt(mean(sum((alpha_old-alpha)^2))),"\n")
+      alpha_changed=alpha_changed+1
+      cat("alpha changed:",alpha_changed,"\n")
+      cat("\n")
+    }
+    
+    if (examineAll)
+      examineAll = F
+    else if (alpha_changed == 0)
+      examineAll = T
   }
-  if (a2<L)
-  {
-    alpha2=L
-  }
-  alpha1=alpha[alpha1_ind]+yy[1]*yy[2]*(alpha[alpha2_ind]-alpha2)
-  return(c(alpha1,alpha2))
+  
+  return(list(Alpha=c(alpha1,alpha2),B=b,E=E,GG=gg))
 }
 update.b<-function(E,y,b,ker_mat,alpha1_ind,alpha2_ind,alpha_old,alpha_new,eps,C)
 {
@@ -188,8 +182,8 @@ update.b<-function(E,y,b,ker_mat,alpha1_ind,alpha2_ind,alpha_old,alpha_new,eps,C
       return(b)
     }
     b=c(b1,b2)[ss][1]
-    if (all(ss))
-      cat("b1-b2:",b1-b2,"\n")
+#    if (all(ss))
+#      cat("b1-b2:",b1-b2,"\n")
   }
   return(b)
 }
@@ -201,7 +195,7 @@ g<-function(alpha,y,ker_mat,col,b) ### col is the x colind
 }
 
 
-update.E<-function(E,is_support,y,alpha,ker_mat,b)
+update.E<-function(E,y,alpha,ker_mat,b)
 {
   gg=sapply(1:length(alpha),g,alpha=alpha,y=y,
             ker_mat=ker_mat,b=b)
@@ -218,32 +212,11 @@ SMO<-function(data,y,C,eps=10^(-4)) ###data is the features; y is the respond va
   gg=sapply(1:length(alpha),g,alpha=alpha,y=y,
             ker_mat=ker_mat,b=b)
   E=gg-y
-  is_kkt=is.KKT(y,alpha,eps,C,gg) 
-  iter=1
-  while(!all(is_kkt))
-  {
-    iter=iter+1
-    is_support=is.support(alpha,C,eps)
-    E=update.E(E,is_support,y,alpha,ker_mat,b)
-    
-    alpha1_ind=first.alpha(y,alpha,eps,C,gg,is_support)
- #   nkkt_ind=which(!is_kkt)
-    alpha2_ind=second.alpha(E,alpha1_ind)
-    
-    alpha_new=Update.alphas(alpha1_ind,alpha2_ind,y,alpha,C,E,ker_mat)
-    b=update.b(E,y,b,ker_mat,alpha1_ind,alpha2_ind,
-             alpha_old=alpha[c(alpha1_ind,alpha2_ind)],alpha_new,eps,C)
-    
-    alpha[c(alpha1_ind,alpha2_ind)]=alpha_new
-    gg=sapply(1:length(alpha),g,alpha=alpha,y=y,
-              ker_mat=ker_mat,b=b)
-
-    is_kkt=is.KKT(y,alpha,eps,C,gg)
-    cat("un kkt",sum(!is_kkt),"\n")
-  }
-  return(list(Alpha=alpha,B=b,Fit=gg,Ker_mat=ker_mat))
+  res=Update(y,alpha,C,E,ker_mat,eps,b)
+#  is_kkt=is.KKT(y,alpha,eps,C,gg) 
+  return(res)
 }
-res=SMO(data=d[1:100,1:4],y=d$y[1:100],C=0.5,eps=10^(-4))
+res=SMO(data=d[,1:4],y=d$y,C=1,eps=10^(-3))
 
 
 
