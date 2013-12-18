@@ -307,15 +307,15 @@ p + theme(axis.text = element_text(size = rel(1.5), colour = &quot;black&quot;),
 
 <p>We first solve the min problem. By using the first order condition, we have:</p>
 
-<p>\( \nabla{w}=w-\sum_{i=1}^N{\alpha_iy_ix_i=0}\\\nabla{b}=\sum_{i=1}^N\alpha_iy_i=0\\\nabla{\xi_i=2C\xi_i-\alpha_i+beta_i=0} \)</p>
+<p>\( \nabla{w}=w-\sum_{i=1}^N{\alpha_iy_ix_i=0}\\\nabla{b}=\sum_{i=1}^N\alpha_iy_i=0\\\nabla{\xi_i=2C\xi_i-\alpha_i+\beta_i=0} \)</p>
 
 <p>By substituting the condition into the L function, we get:</p>
 
-<p>\( L=1/2\sum_{i=1}^N\sum_{i=1}^N{\alpha_i\alpha_jy_iy_j(x_i\cdot{x_j})}-\sum_{i=1}^N\alpha_iy_i[(\sum_{j=1}^N\alpha_jy_jx_j)x_i+b]-\sum_{i=1}^N\alpha_i\\=-1/2\sum_{i=1}^N\sum_{j=1}^N\alpha_i\alpha_jy_iy_j(x_i\cdot{x_j})-\sum_{i=1}^N\frac{(\alpha_i-\beta_i)^2}{2C} \)</p>
+<p>\( L=1/2\sum_{i=1}^N\sum_{j=1}^N{\alpha_i\alpha_jy_iy_j(x_i\cdot{x_j})}-\sum_{i=1}^N\alpha_iy_i[(\sum_{j=1}^N\alpha_jy_jx_j)x_i+b]-\sum_{i=1}^N\alpha_i+\sum_{i=1}^N(\beta_i-\alpha_i)\xi_i\\=-1/2\sum_{i=1}^N\sum_{j=1}^N\alpha_i\alpha_jy_iy_j(x_i\cdot{x_j})-\sum_{i=1}^N\frac{(\alpha_i-\beta_i)^2}{2C} \)</p>
 
 <p>And it subjects to the restrictions:</p>
 
-<p>\( \sum_{i=1}^N\alpha_iy_i=0\\\alpha_i\ge{0}\\\alpha_i\ge\beta_i\ge{0} \)</p>
+<p>\( \sum_{i=1}^N\alpha_iy_i=0\\\alpha_i\ge\beta_i\ge{0} \)</p>
 
 </body>
 
